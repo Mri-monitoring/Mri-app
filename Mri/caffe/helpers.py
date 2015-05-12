@@ -1,6 +1,6 @@
 import re
 
-from .TrainingEvent import TrainingEvent
+from .TrainingCaffeEvent import TrainingCaffeEvent
 
 _reg_loss = re.compile(r'\bIteration\s\d+, loss\s=\s[0-9\.]+\b')
 _reg_acc = re.compile(r'accuracy\s=\s[0-9\.]+', flags=re.DOTALL)
@@ -15,8 +15,8 @@ def parse_train_line(line):
 
     Returns
     ----------
-    training_event : TrainingEvent
-        A (possibly incomplete) CaffeEvent with the parsed information
+    training_event : TrainingCaffeEvent
+        A (possibly incomplete) BaseCaffeEvent with the parsed information
     """
     line = line.decode('utf8')
     line = line.replace('\n', '')
@@ -27,9 +27,9 @@ def parse_train_line(line):
         iteration_str, loss_str = loss_match[0].split(',')
         iter = int(iteration_str.replace('Iteration ', ''))
         loss = float(loss_str.replace('loss = ', ''))
-        return TrainingEvent(iter, loss, None)
+        return TrainingCaffeEvent(iter, loss, None)
     elif acc_match:
         acc = float(acc_match[0].replace('accuracy = ', ''))
-        return TrainingEvent(None, None, acc)
+        return TrainingCaffeEvent(None, None, acc)
     else:
         return None

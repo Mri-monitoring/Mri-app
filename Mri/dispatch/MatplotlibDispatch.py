@@ -1,22 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
 
-from .ActionDispatch import ActionDispatch
+from .BaseDispatch import BaseDispatch
 
 
-class MatplotlibDispatch(ActionDispatch):
+class MatplotlibDispatch(BaseDispatch):
     """Display events via Matplotlib backend
 
     Arguments
     ----------
-    None
+    task_params : dict
+        Dictionary of the task json specification, including name and ID number
     """
-    def __init__(self):
+    def __init__(self, task_params):
         super().__init__()
         self._iters = []
         self._losses = []
         self._accs = []
+        self.task_params = task_params
         plt.figure()
+        plt.ion()
+        plt.show()
 
     def train_event(self, event):
         """Plot a basic training and testing curve via Matplotlib"""
@@ -33,5 +38,20 @@ class MatplotlibDispatch(ActionDispatch):
         acc = np.array(self._accs)
 
         # Display
+        plt.clf()
         plt.plot(iters, loss, iters, acc)
+        plt.ylim([0, 1])
+        plt.legend(['Loss', 'Accuracy'])
+        plt.title(self.task_params['name'])
         plt.draw()
+
+    def train_finish(self, filename):
+        """Save our output figure to PNG format
+
+        Arguments
+        ----------
+        filename : string
+            Filename to save training curves after completed
+        """
+        logging.info('Finished training! Saving output image to {0}'.format(filename))
+        plt.savefig(filename, bbox_inches='tight')

@@ -1,5 +1,5 @@
-from .TrainingEvent import TrainingEvent
+from .TrainingCaffeEvent import TrainingCaffeEvent
 from .CaffeWrapper import CaffeWrapper
 
 __all__ = ['CaffeWrapper',
-           'TrainingEvent']
+           'TrainingCaffeEvent']

@@ -1,7 +1,7 @@
-from .CaffeEvent import CaffeEvent
+from .BaseCaffeEvent import BaseCaffeEvent
 
 
-class TrainingEvent(CaffeEvent):
+class TrainingCaffeEvent(BaseCaffeEvent):
     """Container for training events"""
     def __init__(self, iteration, loss, accuracy):
         super().__init__()

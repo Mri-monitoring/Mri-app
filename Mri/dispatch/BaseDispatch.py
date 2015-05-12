@@ -1,6 +1,6 @@
 import logging
 
-class ActionDispatch(object):
+class BaseDispatch(object):
     """Base class to dispatch new actions to whatever backend you want
 
     Arguments

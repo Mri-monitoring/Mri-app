@@ -7,6 +7,7 @@ import threading
 
 from Mri.caffe import CaffeWrapper
 from Mri.dispatch import MatplotlibDispatch
+from Mri.retrieve import LocalRetrieve
 
 
 class MriClient(object):
@@ -18,60 +19,90 @@ class MriClient(object):
         config_file : string
             Configuration file to load
         """
-        self._running = False
-        self._event_queue = None
-        self._caffe_thread = None
+        self._retrieve = None
         self.config = configparser.ConfigParser()
         try:
             self.config.read(config_file)
         except Exception as e:
-            logging.error('Failed to parse config file')
+            print('Failed to parse config file')
             raise e
 
-        log_location = os.path.abspath(self.config['mri-client']['log_location'])
-        if self.config['mri-client']['debug'].lower() == 'true':
-            logging.basicConfig(filename=log_location, level=logging.DEBUG)
-        else:
-            logging.basicConfig(filename=log_location)
-
+        self._init_logging()
         logging.info('Started MRI client at {0}'.format(time.ctime()))
         logging.info('Read config file at {0}'.format(config_file))
-        logging.info('Log location at {0}'.format(log_location))
 
     def start(self):
         """Start the Caffe thread and run forever reading events"""
-        self._running = True
+        self._retrieve = self._gen_retrieve()
+        for task in self._retrieve.retrieve_task():
+            logging.info('Running task {0} (id={1})'.format(task['name'], task['id']))
+            for directive in task['directives']:
+                logging.info('Directive found! Type: {0}'.format(directive['type']))
+                logging.debug('Full directive: {0}'.format(directive))
+                directive_params = directive['parameters']
+                if directive['type'] == 'train':
+                    self._run_caffe_train(directive_params, task)
+
+    def _run_caffe_train(self, train_directives, task_params):
+        """Start running Caffe training using a dispatch specified in config"""
+        def run_train():
+            caffe = CaffeWrapper(event_queue)
+            caffe_root = self.config['mri-client']['caffe_root']
+            # Convert the URI to a file on the local machine
+            # For local retrievers this is just the file, but for network
+            # retrievers we'll download the file to a temp file
+            solver_path = self._retrieve.retrieve_file(train_directives['solver'])
+            logging.debug('Using local solver {0}'.format(solver_path))
+            caffe.train(caffe_root, solver_path)
+
+        dispatch = self._gen_dispatch(task_params)
         # Non-blocking thread safe queue for incoming events
-        self._event_queue = queue.Queue()
+        event_queue = queue.Queue()
         # Run Caffe on a separate thread, non-blocking
-        self._caffe_thread = threading.Thread(target=self._run_caffe_train)
-        self._caffe_thread.start()
+        logging.info('Spinning up Caffe for training')
+        caffe_thread = threading.Thread(target=run_train)
+        caffe_thread.start()
         # Event loop to process incoming messages from Caffe
-        while self._running:
-            if not self._event_queue.empty():
-                item = self._event_queue.get()
+        while caffe_thread.is_alive():
+            if not event_queue.empty():
+                item = event_queue.get()
+                logging.debug('Processed item! Contents: {0}'.format(item))
+                dispatch.train_event(item)
             # Handoff CPU
             time.sleep(0.1)
-        self._cleanup()
+        filename = task_params['name'].replace(' ', '_')
+        savefile = os.path.join(self.config['matplotlib-dispatch']['save_img_folder'], filename)
+        dispatch.train_finish(savefile)
 
-    def stop(self):
-        """Stop all running processes"""
-        self._cleanup()
-
-    def _run_caffe_train(self):
-        """Start running Caffe training using a dispatch specified in config"""
+    def _gen_dispatch(self, task_params):
+        """Create dispatch from config file"""
+        # Dispatcher handles new requests coming from Caffe
         dispatch_type = self.config['mri-client']['dispatch'].lower()
-        if dispatch_type == 'matplotlib':
-            dispatch = MatplotlibDispatch()
-        caffe = CaffeWrapper(dispatch)
+        if dispatch_type == 'matplotlib-dispatch':
+            return MatplotlibDispatch(task_params)
 
-        caffe_root = self.config['mri-client']['caffe_root']
-        solver_path = self.config['mri-client']['solver']
-        caffe.solve(caffe_root, solver_path)
+    def _gen_retrieve(self):
+        """Create retrieve from config file"""
+        # Retriever gets new Caffe tasks
+        retrieve_type = self.config['mri-client']['retrieve'].lower()
+        if retrieve_type == 'local-retrieve':
+            return LocalRetrieve(self.config['local-retrieve']['task_list'])
 
-    def _cleanup(self):
-        self._running = False
-        self._event_queue = None
-        if self._caffe_thread:
-            self._caffe_thread.stop()
-        self._caffe_thread = None
+    def _init_logging(self):
+        """Setup logger to file and console"""
+        log_location = os.path.abspath(self.config['mri-client']['log_location'])
+        log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+        root_logger = logging.getLogger()
+
+        # Send everything to console if debug mode
+        if self.config['mri-client']['debug'].lower() == 'true':
+            root_logger.level = logging.DEBUG
+            file_handler = logging.FileHandler(log_location)
+            file_handler.setFormatter(log_formatter)
+            root_logger.addHandler(file_handler)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_formatter)
+        root_logger.addHandler(console_handler)
+        logging.info('Log location at {0}'.format(log_location))
+
