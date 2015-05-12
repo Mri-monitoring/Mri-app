@@ -1,0 +1,8 @@
+[mri-server]
+url = http://mri-server.herokuapp.com
+username = cbdcig
+password = cbdcig
+
+[mri-client]
+log_location = ./mri.log
+debug = True
