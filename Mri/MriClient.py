@@ -55,7 +55,10 @@ class MriClient(object):
             logging.debug('Using local solver {0}'.format(solver_path))
             caffe.train(caffe_root, solver_path)
 
-        dispatch = self._gen_dispatch(task_params)
+        # Get dispatch based on type
+        dispatch_type = self.config['mri-client']['dispatch'].lower()
+        if dispatch_type == 'matplotlib-dispatch':
+            dispatch = MatplotlibDispatch(task_params)
         # Non-blocking thread safe queue for incoming events
         event_queue = queue.Queue()
         # Run Caffe on a separate thread, non-blocking
@@ -73,13 +76,6 @@ class MriClient(object):
         filename = task_params['name'].replace(' ', '_')
         savefile = os.path.join(self.config['matplotlib-dispatch']['save_img_folder'], filename)
         dispatch.train_finish(savefile)
-
-    def _gen_dispatch(self, task_params):
-        """Create dispatch from config file"""
-        # Dispatcher handles new requests coming from Caffe
-        dispatch_type = self.config['mri-client']['dispatch'].lower()
-        if dispatch_type == 'matplotlib-dispatch':
-            return MatplotlibDispatch(task_params)
 
     def _gen_retrieve(self):
         """Create retrieve from config file"""

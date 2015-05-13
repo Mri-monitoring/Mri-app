@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 
 
 class LocalRetrieve(object):

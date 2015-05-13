@@ -4,6 +4,7 @@ from Mri.MriClient import MriClient
 
 import argparse
 
+
 def main():
     """Entry point for Mri"""
     parser = argparse.ArgumentParser(description='Monitoring tool for Caffe')

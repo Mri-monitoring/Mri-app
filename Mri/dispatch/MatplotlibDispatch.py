@@ -19,7 +19,7 @@ class MatplotlibDispatch(BaseDispatch):
         self._losses = []
         self._accs = []
         self.task_params = task_params
-        plt.figure()
+        plt.figure(figsize=(12,10))
         plt.ion()
         plt.show()
 
@@ -41,8 +41,9 @@ class MatplotlibDispatch(BaseDispatch):
         plt.clf()
         plt.plot(iters, loss, iters, acc)
         plt.ylim([0, 1])
-        plt.legend(['Loss', 'Accuracy'])
+        plt.legend(['Loss', 'Accuracy'], loc='lower left')
         plt.title(self.task_params['name'])
+        plt.grid(True)
         plt.draw()
 
     def train_finish(self, filename):

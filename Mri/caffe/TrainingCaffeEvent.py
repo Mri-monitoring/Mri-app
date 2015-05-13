@@ -11,3 +11,16 @@ class TrainingCaffeEvent(BaseCaffeEvent):
 
     def __str__(self):
         return 'Iter: {0}, Loss: {1}, Acc: {2}'.format(self.iteration, self.loss, self.accuracy)
+
+    def __eq__(self, other):
+        if (
+            self.iteration == other.iteration and
+            self.loss == other.loss and
+            self.accuracy == other.accuracy
+        ):
+            return True
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
