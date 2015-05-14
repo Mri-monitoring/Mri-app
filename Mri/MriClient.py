@@ -6,7 +6,7 @@ import queue
 import threading
 
 from Mri.caffe import CaffeWrapper
-from Mri.dispatch import MatplotlibDispatch
+from Mri.dispatch import MatplotlibDispatch, MriServerDispatch
 from Mri.retrieve import LocalRetrieve
 
 
@@ -81,6 +81,15 @@ class MriClient(object):
         if dispatch_type == 'matplotlib-dispatch':
             folder = os.path.join(self.config['matplotlib-dispatch']['save_img_folder'])
             dispatch = MatplotlibDispatch(task, folder)
+        elif dispatch_type == 'mri-server-dispatch':
+            url = self.config['mri-server-dispatch']['url']
+            username = self.config['mri-server-dispatch']['username']
+            password = self.config['mri-server-dispatch']['password']
+            dispatch = MriServerDispatch(task, url, username, password)
+        else:
+            logging.error('Invalid configuration file, please select a dispatch')
+            raise Exception('Invalid configuration file, please select a dispatch')
+
         return dispatch
 
     def _gen_retrieve(self):

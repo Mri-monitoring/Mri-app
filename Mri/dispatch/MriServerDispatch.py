@@ -1,7 +1,6 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import logging
 import requests
+import json
 
 from .BaseDispatch import BaseDispatch
 
@@ -32,9 +31,21 @@ class MriServerDispatch(BaseDispatch):
         self.address = address
         self.auth = (username, password)
 
-    def train_event(self, event):
-        """Dispatch training events to the Mri-server via REST interface"""
+    def train_event(self, event, event_url='/api/events'):
+        """Dispatch training events to the Mri-server via REST interface
+
+        Arguments
+        ----------
+        event : TrainingCaffeEvent
+            Info for this training event
+
+        event_url : string
+            URI to send post events to in Mri-server (shouldn't need to change)
+        """
         super().train_event(event)
+        payload = self._format_train_request(event)
+        result = self._send_request(event_url, 'POST', payload)
+        return result
 
     def train_finish(self):
         """Final call for training, can be used to issue alerts/etc"""
@@ -64,6 +75,9 @@ class MriServerDispatch(BaseDispatch):
             protocol = protocol.upper()
             url = requests.compat.urljoin(self.address, suffix)
             result = requests.request(method=protocol, url=url, data=data, headers=headers, auth=self.auth)
+            logging.info('Sent request, result {0}'.format(result.status_code))
+            if result.status_code != 200:
+                logging.warning('Request not 200, server says {0}'.format(result.text))
         except requests.ConnectionError as ex:
             logging.warning('Failed to send request because of a network problem')
             logging.warning('Message from exception: {0}'.format(ex))
@@ -78,9 +92,19 @@ class MriServerDispatch(BaseDispatch):
         """Called during init, creates a new report on the server"""
         pass
 
-    def _format_train_request(self):
+    def _format_train_request(self, train_event):
         """Generate the payload for the train request"""
-        pass
+        event_type = 'train.{0}'.format(self.task_params['id'].replace(' ', ''))
+        properties = {
+            'iteration': train_event.iteration,
+            'loss': train_event.loss,
+            'accuracy': train_event.accuracy
+        }
+        payload = {
+            'type': event_type,
+            'properties': properties
+        }
+        return json.dumps(payload)
 
     def _post_train_event(self):
         """Called during train event, posts a new training event via HTTP"""

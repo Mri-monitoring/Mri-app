@@ -1,5 +1,4 @@
 import unittest
-from Mri.caffe import TrainingCaffeEvent
 from Mri.caffe.helpers import parse_train_line
 
 
@@ -14,11 +13,14 @@ class TestHelpers(unittest.TestCase):
         no_line = bytes(
             'I0513 14:18:54.059476 26473 net.cpp:169] accuracy does not need backward computation.', 'UTF-8'
         )
-        self.assertEqual(parse_train_line(loss_line), TrainingCaffeEvent(100, 0.507584, None))
-        self.assertNotEqual(parse_train_line(loss_line), TrainingCaffeEvent(200, 0.507584, None))
-        self.assertEqual(parse_train_line(acc_line), TrainingCaffeEvent(None, None, 0.789375))
-        self.assertNotEqual(parse_train_line(acc_line), TrainingCaffeEvent(None, None, 0.389375))
-        self.assertEqual(parse_train_line(no_line), None)
+        parsed = {'iteration': 100, 'loss': 0.507584}
+        self.assertEqual(parse_train_line(loss_line), parsed)
+        parsed = {'iteration': 200, 'loss': 0.57584}
+        self.assertNotEqual(parse_train_line(loss_line), parsed)
+        parsed = {'accuracy': 0.789375}
+        self.assertEqual(parse_train_line(acc_line), parsed)
+
+        self.assertEqual(parse_train_line(no_line), {})
 
 if __name__ == '__main__':
     unittest.main()

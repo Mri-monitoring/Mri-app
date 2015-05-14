@@ -5,6 +5,8 @@ class TrainingCaffeEvent(BaseCaffeEvent):
     """Container for training events"""
     def __init__(self, iteration, loss, accuracy):
         super().__init__()
+        if iteration is None:
+            raise ValueError('Cannot instantiate a training event without an interation number')
         self.iteration = iteration
         self.loss = loss
         self.accuracy = accuracy

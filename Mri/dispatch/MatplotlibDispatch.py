@@ -19,7 +19,6 @@ class MatplotlibDispatch(BaseDispatch):
     """
     def __init__(self, task_params, img_folder):
         super().__init__()
-        self._iters = []
         self._losses = []
         self._accs = []
         self.task_params = task_params
@@ -32,24 +31,25 @@ class MatplotlibDispatch(BaseDispatch):
         """Plot a basic training and testing curve via Matplotlib"""
         super().train_event(event)
 
-        # Update lists
-        self._iters.append(event.iteration)
-        self._losses.append(event.loss)
-        self._accs.append(event.accuracy)
+        # Update list
+        if event.accuracy:
+            self._accs.append([event.iteration, event.accuracy])
+        if event.loss:
+            self._losses.append([event.iteration, event.loss])
 
         # Convert to numpy arrays
-        iters = np.array(self._iters)
         loss = np.array(self._losses)
         acc = np.array(self._accs)
 
-        # Display
-        plt.clf()
-        plt.plot(iters, loss, iters, acc)
-        plt.ylim([0, 1])
-        plt.legend(['Loss', 'Accuracy'], loc='lower left')
-        plt.title(self.task_params['name'])
-        plt.grid(True, which='both')
-        plt.draw()
+        # Display if we have accuracy and loss
+        if loss.size > 0 and acc.size > 0:
+            plt.clf()
+            plt.plot(loss[:,0], loss[:,1], acc[:,0], acc[:,1])
+            plt.ylim([0, 1])
+            plt.legend(['Loss', 'Accuracy'], loc='lower left')
+            plt.title(self.task_params['name'])
+            plt.grid(True, which='both')
+            plt.draw()
 
     def train_finish(self):
         """Save our output figure to PNG format"""

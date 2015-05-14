@@ -17,8 +17,6 @@ class CaffeWrapper(object):
     def __init__(self, action_handler):
         self.action_handler = action_handler
         self.curiter = None
-        self.curloss = None
-        self.curacc = None
 
     def train(self, caffe_root, solver, caffe_path='./build/tools/caffe'):
         """Run Caffe training given the required models
@@ -31,15 +29,17 @@ class CaffeWrapper(object):
         solver: string
             Location of the solver file for this Caffe run
         """
-        def _consolidate_training(train_event):
-            """Combine traning event with known data"""
-            if train_event:
-                if train_event.accuracy:
-                    self.curacc = train_event.accuracy
-                if train_event.iteration:
-                    self.curiter = train_event.iteration
-                if train_event.loss:
-                    self.curloss = train_event.loss
+        def create_from_dict(event):
+            iteration = None
+            loss = None
+            acc = None
+            if 'iteration' in event:
+                iteration = event['iteration']
+            if 'loss' in event:
+                loss = event['loss']
+            if 'accuracy' in event:
+                acc = event['accuracy']
+            return TrainingCaffeEvent(iteration, loss, acc)
 
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
@@ -50,11 +50,13 @@ class CaffeWrapper(object):
                     logging.debug('[CAFFE OUTPUT ] {0}'.format(line))
                     parsed_event = parse_train_line(line)
                     if parsed_event:
-                        _consolidate_training(parsed_event)
-                        # If we've already seen all three fields, start sending data
-                        if self.curiter and self.curloss and self.curacc:
-                            event = TrainingCaffeEvent(self.curiter, self.curloss, self.curacc)
-                            self.action_handler.put(event)
+                        # If we've already seen the iteration, start sending data
+                        if 'iteration' in parsed_event:
+                            self.curiter = parsed_event['iteration']
+                        if self.curiter is not None:
+                            parsed_event['iteration'] = self.curiter
+                            event_struct = create_from_dict(parsed_event)
+                            self.action_handler.put(event_struct)
                 # Wait for completion
                 proc.wait(timeout=10)
                 code = proc.returncode
