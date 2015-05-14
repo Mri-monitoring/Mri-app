@@ -13,3 +13,7 @@ class BaseDispatch(object):
     def train_event(self, event):
         """Parse a line of output from a training caffe object"""
         logging.debug(event)
+
+    def train_finish(self):
+        """Call once training is finished"""
+        logging.debug('Training finished!')

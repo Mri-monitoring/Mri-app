@@ -20,6 +20,7 @@ class MriClient(object):
             Configuration file to load
         """
         self._retrieve = None
+        self._dispatch = None
         self.config = configparser.ConfigParser()
         try:
             self.config.read(config_file)
@@ -36,14 +37,17 @@ class MriClient(object):
         self._retrieve = self._gen_retrieve()
         for task in self._retrieve.retrieve_task():
             logging.info('Running task {0} (id={1})'.format(task['name'], task['id']))
+            # Get dispatch based on type. Each task has it's own dispatch, but a dispatch
+            # covers all the directives under a certain task.
+            self._dispatch = self._gen_dispatch(task)
             for directive in task['directives']:
                 logging.info('Directive found! Type: {0}'.format(directive['type']))
                 logging.debug('Full directive: {0}'.format(directive))
                 directive_params = directive['parameters']
                 if directive['type'] == 'train':
-                    self._run_caffe_train(directive_params, task)
+                    self._run_caffe_train(directive_params)
 
-    def _run_caffe_train(self, train_directives, task_params):
+    def _run_caffe_train(self, train_directives):
         """Start running Caffe training using a dispatch specified in config"""
         def run_train():
             caffe = CaffeWrapper(event_queue)
@@ -55,10 +59,6 @@ class MriClient(object):
             logging.debug('Using local solver {0}'.format(solver_path))
             caffe.train(caffe_root, solver_path)
 
-        # Get dispatch based on type
-        dispatch_type = self.config['mri-client']['dispatch'].lower()
-        if dispatch_type == 'matplotlib-dispatch':
-            dispatch = MatplotlibDispatch(task_params)
         # Non-blocking thread safe queue for incoming events
         event_queue = queue.Queue()
         # Run Caffe on a separate thread, non-blocking
@@ -70,12 +70,18 @@ class MriClient(object):
             if not event_queue.empty():
                 item = event_queue.get()
                 logging.debug('Processed item! Contents: {0}'.format(item))
-                dispatch.train_event(item)
+                self._dispatch.train_event(item)
             # Handoff CPU
             time.sleep(0.1)
-        filename = task_params['name'].replace(' ', '_')
-        savefile = os.path.join(self.config['matplotlib-dispatch']['save_img_folder'], filename)
-        dispatch.train_finish(savefile)
+        self._dispatch.train_finish()
+
+    def _gen_dispatch(self, task):
+        # Get dispatch based on type
+        dispatch_type = self.config['mri-client']['dispatch'].lower()
+        if dispatch_type == 'matplotlib-dispatch':
+            folder = os.path.join(self.config['matplotlib-dispatch']['save_img_folder'])
+            dispatch = MatplotlibDispatch(task, folder)
+        return dispatch
 
     def _gen_retrieve(self):
         """Create retrieve from config file"""

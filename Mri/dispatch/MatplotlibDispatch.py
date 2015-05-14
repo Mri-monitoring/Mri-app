@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
+import os
 
 from .BaseDispatch import BaseDispatch
 
@@ -12,13 +13,17 @@ class MatplotlibDispatch(BaseDispatch):
     ----------
     task_params : dict
         Dictionary of the task json specification, including name and ID number
+
+    img_folder : string
+        Folder to save output images to
     """
-    def __init__(self, task_params):
+    def __init__(self, task_params, img_folder):
         super().__init__()
         self._iters = []
         self._losses = []
         self._accs = []
         self.task_params = task_params
+        self._img_folder = img_folder
         plt.figure(figsize=(12,10))
         plt.ion()
         plt.show()
@@ -43,16 +48,12 @@ class MatplotlibDispatch(BaseDispatch):
         plt.ylim([0, 1])
         plt.legend(['Loss', 'Accuracy'], loc='lower left')
         plt.title(self.task_params['name'])
-        plt.grid(True)
+        plt.grid(True, which='both')
         plt.draw()
 
-    def train_finish(self, filename):
-        """Save our output figure to PNG format
-
-        Arguments
-        ----------
-        filename : string
-            Filename to save training curves after completed
-        """
-        logging.info('Finished training! Saving output image to {0}'.format(filename))
-        plt.savefig(filename, bbox_inches='tight')
+    def train_finish(self):
+        """Save our output figure to PNG format"""
+        filename = self.task_params['name'].replace(' ', '_')
+        save_path = os.path.join(self._img_folder, filename)
+        logging.info('Finished training! Saving output image to {0}'.format(save_path))
+        plt.savefig(save_path, bbox_inches='tight')

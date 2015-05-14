@@ -20,7 +20,7 @@ class CaffeWrapper(object):
         self.curloss = None
         self.curacc = None
 
-    def train(self, caffe_root, solver):
+    def train(self, caffe_root, solver, caffe_path='./build/tools/caffe'):
         """Run Caffe training given the required models
 
         Parameters
@@ -44,7 +44,7 @@ class CaffeWrapper(object):
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
         with cd(caffe_root):
-            process_args = ['./build/tools/caffe', 'train', '--solver', solver]
+            process_args = [caffe_path, 'train', '--solver', solver]
             with subprocess.Popen(process_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
                 for line in iter(proc.stderr.readline, b''):
                     logging.debug('[CAFFE OUTPUT ] {0}'.format(line))
@@ -55,3 +55,9 @@ class CaffeWrapper(object):
                         if self.curiter and self.curloss and self.curacc:
                             event = TrainingCaffeEvent(self.curiter, self.curloss, self.curacc)
                             self.action_handler.put(event)
+                # Wait for completion
+                proc.wait(timeout=10)
+                code = proc.returncode
+        if code != 0:
+            logging.error('Caffe returned with non-zero error code! (returned {0})'.format(code))
+            raise OSError('Caffe external call failed')
