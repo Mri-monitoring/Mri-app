@@ -10,6 +10,10 @@ class BaseDispatch(object):
     def __init__(self):
         pass
 
+    def setup_display(self):
+        """Create whatever front end we're using"""
+        logging.debug('New display being created for dispatcher')
+
     def train_event(self, event):
         """Parse a line of output from a training caffe object"""
         logging.debug(event)

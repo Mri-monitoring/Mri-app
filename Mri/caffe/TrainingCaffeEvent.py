@@ -2,11 +2,15 @@ from .BaseCaffeEvent import BaseCaffeEvent
 
 
 class TrainingCaffeEvent(BaseCaffeEvent):
-    """Container for training events"""
+    """Container for training events. Training events must have an iteration, and must
+    have at least one other attribute to be valid"""
     def __init__(self, iteration, loss, accuracy):
         super().__init__()
         if iteration is None:
-            raise ValueError('Cannot instantiate a training event without an interation number')
+            raise ValueError('Cannot instantiate a training event without an iteration number')
+        if not loss and not accuracy:
+            raise ValueError('Cannot instantiate a training event without a valid field')
+
         self.iteration = iteration
         self.loss = loss
         self.accuracy = accuracy
@@ -26,3 +30,16 @@ class TrainingCaffeEvent(BaseCaffeEvent):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    @staticmethod
+    def create_from_dict(event):
+        iteration = None
+        loss = None
+        acc = None
+        if 'iteration' in event:
+            iteration = event['iteration']
+        if 'loss' in event:
+            loss = event['loss']
+        if 'accuracy' in event:
+            acc = event['accuracy']
+        return TrainingCaffeEvent(iteration, loss, acc)

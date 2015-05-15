@@ -23,7 +23,9 @@ class MatplotlibDispatch(BaseDispatch):
         self._accs = []
         self.task_params = task_params
         self._img_folder = img_folder
-        plt.figure(figsize=(12,10))
+
+    def setup_display(self):
+        plt.figure(figsize=(12, 10))
         plt.ion()
         plt.show()
 
@@ -44,7 +46,7 @@ class MatplotlibDispatch(BaseDispatch):
         # Display if we have accuracy and loss
         if loss.size > 0 and acc.size > 0:
             plt.clf()
-            plt.plot(loss[:,0], loss[:,1], acc[:,0], acc[:,1])
+            plt.plot(loss[:, 0], loss[:, 1], acc[:, 0], acc[:, 1])
             plt.ylim([0, 1])
             plt.legend(['Loss', 'Accuracy'], loc='lower left')
             plt.title(self.task_params['name'])

@@ -31,6 +31,25 @@ class TestMriServerDispatch(unittest.TestCase):
         result = server._send_request('/get', 'GET', None)
         self.assertEqual(result, None)
 
+    def test_new_report(self):
+        server = MriServerDispatch({'name': 'test'}, HTTP_BIN, 'test', 'tester')
+        result = server._new_report(reports_url='/post')
+        self.assertEqual(result['data'], '{"title": "test"}')
+
+    def test_format_train_request(self):
+        server = MriServerDispatch({'name': 'test', 'id': 'cbdcig'}, HTTP_BIN, 'test', 'tester')
+        event = TrainingCaffeEvent(100, 0.5, 0.6)
+        payload = server._format_train_request(event)
+        self.assertTrue('train.cbdcig' in payload)
+        self.assertTrue('"accuracy": 0.6' in payload)
+
+    def test_format_report(self):
+        server = MriServerDispatch({'name': 'test', 'id': 'cbdcig'}, HTTP_BIN, 'test', 'tester')
+        result = server._format_report('/put')
+        obj = json.loads(result.text)['json']
+        self.assertEqual('big', obj['visualizations'][0]['configuration']['size'])
+        self.assertEqual('train.cbdcig', obj['visualizations'][0]['eventName'])
+
     def test_train_event(self):
         # Check post
         server = MriServerDispatch({}, HTTP_BIN, 'test', 'tester')

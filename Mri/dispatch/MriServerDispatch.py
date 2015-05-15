@@ -30,6 +30,12 @@ class MriServerDispatch(BaseDispatch):
         self.task_params = task_params
         self.address = address
         self.auth = (username, password)
+        self.report_id = None
+
+    def setup_display(self):
+        """Create a report for this dispatch, usually done at init"""
+        self.report_id = self._new_report()['id']
+        self._format_report()
 
     def train_event(self, event, event_url='/api/events'):
         """Dispatch training events to the Mri-server via REST interface
@@ -88,9 +94,34 @@ class MriServerDispatch(BaseDispatch):
             return None
         return result
 
-    def _create_report(self):
-        """Called during init, creates a new report on the server"""
-        pass
+    def _format_report(self, report_url='/api/report/'):
+        """Called after creating a new report, formats a report to display Mri events"""
+        full_url = requests.compat.urljoin(report_url, self.report_id)
+        # Add training visualizations
+        payload = json.dumps({
+            'title': self.task_params['name'],
+            'visualizations': [
+                {
+                    'type': 'plot',
+                    'eventName': 'train.'+self.task_params['id'],
+                    'configuration': {
+                        'title': 'Training Progress',
+                        'sample': 'iteration',
+                        'fields': 'loss, accuracy',
+                        'size': 'big'
+                    }
+                }
+            ]
+        })
+        result = self._send_request(full_url, 'PUT', payload)
+        return result
+
+    def _new_report(self, reports_url='/api/reports'):
+        """Called during init, creates a new report on the server and returns its ID"""
+        payload = json.dumps({'title': self.task_params['name']})
+        result = self._send_request(reports_url, 'POST', payload).text
+        result_obj = json.loads(result)
+        return result_obj
 
     def _format_train_request(self, train_event):
         """Generate the payload for the train request"""
@@ -105,7 +136,3 @@ class MriServerDispatch(BaseDispatch):
             'properties': properties
         }
         return json.dumps(payload)
-
-    def _post_train_event(self):
-        """Called during train event, posts a new training event via HTTP"""
-        pass

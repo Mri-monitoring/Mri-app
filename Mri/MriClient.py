@@ -86,6 +86,7 @@ class MriClient(object):
             username = self.config['mri-server-dispatch']['username']
             password = self.config['mri-server-dispatch']['password']
             dispatch = MriServerDispatch(task, url, username, password)
+            dispatch.setup_display()
         else:
             logging.error('Invalid configuration file, please select a dispatch')
             raise Exception('Invalid configuration file, please select a dispatch')

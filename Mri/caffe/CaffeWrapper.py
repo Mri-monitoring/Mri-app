@@ -29,17 +29,6 @@ class CaffeWrapper(object):
         solver: string
             Location of the solver file for this Caffe run
         """
-        def create_from_dict(event):
-            iteration = None
-            loss = None
-            acc = None
-            if 'iteration' in event:
-                iteration = event['iteration']
-            if 'loss' in event:
-                loss = event['loss']
-            if 'accuracy' in event:
-                acc = event['accuracy']
-            return TrainingCaffeEvent(iteration, loss, acc)
 
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
@@ -55,8 +44,13 @@ class CaffeWrapper(object):
                             self.curiter = parsed_event['iteration']
                         if self.curiter is not None:
                             parsed_event['iteration'] = self.curiter
-                            event_struct = create_from_dict(parsed_event)
-                            self.action_handler.put(event_struct)
+                            try:
+                                event_struct = TrainingCaffeEvent.create_from_dict(parsed_event)
+                                self.action_handler.put(event_struct)
+                            except ValueError:
+                                # We only want to send events that have a field filled out
+                                pass
+
                 # Wait for completion
                 proc.wait(timeout=10)
                 code = proc.returncode

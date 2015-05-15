@@ -22,5 +22,5 @@ caffe_root = /z/nharada/cnnecg/cnnecg/classification/caffe
 solver = /z/nharada/cnnecg/cnnecg/classification/cnnecg_lmdb_solver.prototxt
 
 # Dispatch and Retrieve modules to use
-dispatch = matplotlib-dispatch
+dispatch = mri-server-dispatch
 retrieve = local-retrieve
