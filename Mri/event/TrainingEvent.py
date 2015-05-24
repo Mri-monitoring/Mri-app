@@ -1,7 +1,7 @@
-from .BaseCaffeEvent import BaseCaffeEvent
+from Mri.event import BaseEvent
 
 
-class TrainingCaffeEvent(BaseCaffeEvent):
+class TrainingEvent(BaseEvent):
     """Container for training events. Training events must have an iteration, and must
     have at least one other attribute to be valid"""
     def __init__(self, iteration, loss, accuracy):
@@ -42,4 +42,4 @@ class TrainingCaffeEvent(BaseCaffeEvent):
             loss = event['loss']
         if 'accuracy' in event:
             acc = event['accuracy']
-        return TrainingCaffeEvent(iteration, loss, acc)
+        return TrainingEvent(iteration, loss, acc)

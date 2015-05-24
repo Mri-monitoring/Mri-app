@@ -3,7 +3,7 @@ import requests
 import json
 
 from Mri.dispatch import MriServerDispatch
-from Mri.caffe import TrainingCaffeEvent
+from Mri.event import TrainingEvent
 
 HTTP_BIN = 'http://httpbin.org'
 
@@ -38,7 +38,7 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_format_train_request(self):
         server = MriServerDispatch({'name': 'test', 'id': 'cbdcig'}, HTTP_BIN, 'test', 'tester')
-        event = TrainingCaffeEvent(100, 0.5, 0.6)
+        event = TrainingEvent(100, 0.5, 0.6)
         payload = server._format_train_request(event)
         self.assertTrue('train.cbdcig' in payload)
         self.assertTrue('"accuracy": 0.6' in payload)
@@ -62,7 +62,7 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_formatting(self):
         server = MriServerDispatch({'id': 'abcde'}, HTTP_BIN, 'test', 'tester')
-        event = TrainingCaffeEvent(100, 200, 300)
+        event = TrainingEvent(100, 200, 300)
         data = server._format_train_request(event)
         correct = json.dumps(
             {"type": "train.abcde", "properties": {"iteration": 100, "loss": 200, "accuracy": 300}}

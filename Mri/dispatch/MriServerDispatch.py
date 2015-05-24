@@ -42,7 +42,7 @@ class MriServerDispatch(BaseDispatch):
 
         Arguments
         ----------
-        event : TrainingCaffeEvent
+        event : TrainingEvent
             Info for this training event
 
         event_url : string
@@ -108,6 +108,7 @@ class MriServerDispatch(BaseDispatch):
                         'title': 'Training Progress',
                         'sample': 'iteration',
                         'fields': 'loss, accuracy',
+                        'limit': 100000,
                         'size': 'big'
                     }
                 }

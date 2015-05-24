@@ -1,6 +1,6 @@
 from Mri.utilities import cd
+from Mri.event import TrainingEvent
 from .helpers import parse_train_line
-from .TrainingCaffeEvent import TrainingCaffeEvent
 import subprocess
 import logging
 
@@ -45,7 +45,7 @@ class CaffeWrapper(object):
                         if self.curiter is not None:
                             parsed_event['iteration'] = self.curiter
                             try:
-                                event_struct = TrainingCaffeEvent.create_from_dict(parsed_event)
+                                event_struct = TrainingEvent.create_from_dict(parsed_event)
                                 self.action_handler.put(event_struct)
                             except ValueError:
                                 # We only want to send events that have a field filled out

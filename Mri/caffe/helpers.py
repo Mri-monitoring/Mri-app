@@ -1,7 +1,5 @@
 import re
 
-from .TrainingCaffeEvent import TrainingCaffeEvent
-
 _reg_loss = re.compile(r'\bIteration\s\d+, loss\s=\s[0-9\.]+\b')
 _reg_acc = re.compile(r'accuracy\s=\s[0-9\.]+', flags=re.DOTALL)
 _reg_iter = re.compile(r'Iteration\s\d+')
