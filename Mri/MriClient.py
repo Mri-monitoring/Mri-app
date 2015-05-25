@@ -57,7 +57,11 @@ class MriClient(object):
             # retrievers we'll download the file to a temp file
             solver_path = self._retrieve.retrieve_file(train_directives['solver'])
             logging.debug('Using local solver {0}'.format(solver_path))
-            caffe.train(caffe_root, solver_path)
+            if 'resume' in train_directives:
+                resume = train_directives['resume']
+            else:
+                resume = None
+            caffe.train(caffe_root, solver_path, snapshot=resume)
 
         # Non-blocking thread safe queue for incoming events
         event_queue = queue.Queue()

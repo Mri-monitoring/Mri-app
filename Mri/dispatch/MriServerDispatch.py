@@ -109,7 +109,8 @@ class MriServerDispatch(BaseDispatch):
                         'sample': 'iteration',
                         'fields': 'loss, accuracy',
                         'limit': 100000,
-                        'size': 'big'
+                        'size': 'big',
+                        'interpolation': 'linear'
                     }
                 }
             ]

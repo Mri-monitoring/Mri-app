@@ -15,5 +15,10 @@ class TestTrainingCaffeEvent(unittest.TestCase):
         with self.assertRaises(ValueError):
             _ = TrainingEvent(None, 1.0, 1.0)
 
+    def test_create_from_dict(self):
+        event = TrainingEvent(500, 0.05, 0.10)
+        event_dict = {'iteration': 500, 'loss': 0.05, 'accuracy': 0.10}
+        self.assertEqual(event, TrainingEvent.create_from_dict(event_dict))
+
 if __name__ == '__main__':
     unittest.main()
