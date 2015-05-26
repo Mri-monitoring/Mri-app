@@ -5,7 +5,7 @@ _reg_acc = re.compile(r'accuracy\s=\s[0-9\.]+', flags=re.DOTALL)
 _reg_iter = re.compile(r'Iteration\s\d+')
 
 
-def parse_train_line(line):
+def parse_caffe_train_line(line):
     """Parse a line from Caffe's training output
 
     Arguments

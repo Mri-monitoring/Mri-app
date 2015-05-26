@@ -19,7 +19,9 @@ task_list = /z/nharada/Mri-testing/mri-testing.txt
 log_location = ../mri.log
 debug = True
 caffe_root = /z/nharada/cnnecg/cnnecg/classification/caffe
+caffe_bin = ./build/tools/caffe
 solver = /z/nharada/cnnecg/cnnecg/classification/cnnecg_lmdb_solver.prototxt
+solver_type = Caffe
 
 # Dispatch and Retrieve modules to use
 dispatch = mri-server-dispatch

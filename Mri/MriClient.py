@@ -5,7 +5,7 @@ import time
 import queue
 import threading
 
-from Mri.caffe import CaffeWrapper
+from Mri.process import CaffeProcess, DummyProcess
 from Mri.dispatch import MatplotlibDispatch, MriServerDispatch
 from Mri.retrieve import LocalRetrieve
 
@@ -45,37 +45,41 @@ class MriClient(object):
                 logging.debug('Full directive: {0}'.format(directive))
                 directive_params = directive['parameters']
                 if directive['type'] == 'train':
-                    self._run_caffe_train(directive_params)
+                    self._run_train_directive(directive_params)
 
-    def _run_caffe_train(self, train_directives):
-        """Start running Caffe training using a dispatch specified in config"""
-        def run_train():
-            caffe = CaffeWrapper(event_queue)
-            caffe_root = self.config['mri-client']['caffe_root']
-            # Convert the URI to a file on the local machine
-            # For local retrievers this is just the file, but for network
-            # retrievers we'll download the file to a temp file
-            solver_path = self._retrieve.retrieve_file(train_directives['solver'])
-            logging.debug('Using local solver {0}'.format(solver_path))
-            if 'resume' in train_directives:
-                resume = train_directives['resume']
-            else:
-                resume = None
-            caffe.train(caffe_root, solver_path, snapshot=resume)
-
+    def _run_train_directive(self, directive_params):
+        """Run a directive using the JSON parameters"""
         # Non-blocking thread safe queue for incoming events
         event_queue = queue.Queue()
-        # Run Caffe on a separate thread, non-blocking
-        logging.info('Spinning up Caffe for training')
-        caffe_thread = threading.Thread(target=run_train)
-        caffe_thread.start()
+        # Run directive on a separate thread, non-blocking
+        logging.info('Processing directive on separate thread')
+
+        # Convert the URI to a file on the local machine
+        # For local retrievers this is just the file, but for network
+        # retrievers we'll download the file to a temp file
+        directive_params['local_solver'] = self._retrieve.retrieve_file(directive_params['solver'])
+        logging.debug('Using local solver {0}'.format(directive_params['local_solver']))
+
+        solver_type = self.config['mri-client']['solver_type'].lower()
+        if solver_type == 'caffe':
+            process = CaffeProcess(directive_params, self.config, event_queue)
+            caffe_thread = threading.Thread(target=process.train)
+            caffe_thread.start()
+            logging.info('Started Caffe solver backend!')
+        elif solver_type == 'dummy':
+            process = DummyProcess(directive_params, self.config, event_queue)
+            logging.info('Dummy solver backend detected')
+        else:
+            logging.error('Invalid configuration file, {0} not recognized as type of solver'.format(solver_type))
+            raise ValueError('Invalid configuration file')
+
         # Event loop to process incoming messages from Caffe
-        while caffe_thread.is_alive():
+        while process.alive:
             if not event_queue.empty():
                 item = event_queue.get()
                 logging.debug('Processed item! Contents: {0}'.format(item))
                 self._dispatch.train_event(item)
-            # Handoff CPU
+            # Hand-off CPU
             time.sleep(0.1)
         self._dispatch.train_finish()
 

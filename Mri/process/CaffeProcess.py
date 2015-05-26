@@ -1,53 +1,43 @@
-from Mri.utilities import cd
-from Mri.event import TrainingEvent
-from .helpers import parse_train_line
 import subprocess
 import logging
 
+from Mri.utilities import parse_caffe_train_line, cd
+from Mri.event import TrainingEvent
+from .BaseProcess import BaseProcess
 
-class CaffeWrapper(object):
-    """Parse and send output from Caffe to Queue
 
-    Parameters
+class CaffeProcess(BaseProcess):
+    """Class for running Caffe
+
+    Arguments
     ----------
+    directive_params : dict
+        Dictionary from the JSON directive parameters
+
+    config : dict
+        Dictionary of configuration options
+
     action_handler : Queue
-        Queue that accepts Caffe actions
+        Thread-safe queue that transfers events across threads
     """
+    def __init__(self, directive_params, config, action_handler):
+        super().__init__(directive_params, config, action_handler)
+        self.curiter = 0
 
-    def __init__(self, action_handler):
-        self.action_handler = action_handler
-        self.curiter = None
-
-    def train(self, caffe_root, solver, caffe_path='./build/tools/caffe', snapshot=None):
-        """Run Caffe training given the required models
-
-        Parameters
-        ----------
-        caffe_root : string
-            Location of the root Caffe folder
-
-        solver : string
-            Location of the solver file for this Caffe run
-
-        caffe_path : string
-            Location of the actual Caffe executable
-
-        snapshot : string
-            If present, location of snapshot file to resume from
-        """
-
+    def train(self):
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
-        with cd(caffe_root):
-            process_args = [caffe_path, 'train', '--solver', solver]
+        with cd(self.config['mri-client']['caffe_root']):
+            caffe_path = self.config['mri-client']['caffe_bin']
+            process_args = [caffe_path, 'train', '--solver', self.directive['local_solver']]
             # Resume training from snapshot?
-            if snapshot:
+            if 'resume' in self.directive:
                 process_args.append('--snapshot')
-                process_args.append(snapshot)
+                process_args.append(self.directive['resume'])
             with subprocess.Popen(process_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
                 for line in iter(proc.stderr.readline, b''):
                     logging.debug('[CAFFE OUTPUT ] {0}'.format(line))
-                    parsed_event = parse_train_line(line)
+                    parsed_event = parse_caffe_train_line(line)
                     if parsed_event:
                         # If we've already seen the iteration, start sending data
                         if 'iteration' in parsed_event:
@@ -67,3 +57,10 @@ class CaffeWrapper(object):
         if code != 0:
             logging.error('Caffe returned with non-zero error code! (returned {0})'.format(code))
             raise OSError('Caffe external call failed')
+
+    def test(self):
+        pass
+
+    @property
+    def alive(self):
+        return True

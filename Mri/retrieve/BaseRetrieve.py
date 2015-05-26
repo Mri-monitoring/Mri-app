@@ -1,5 +1,3 @@
-import logging
-
 class BaseRetrieve(object):
     """Base class to retrieve new solver jobs
 
