@@ -1,4 +1,4 @@
-Mri==0.01
+-e git+git@cbdcig6.eecs.umich.edu:nharada/mri.git@d9c7b2a04fa36578d4b596b902ccef512f88fb22#egg=Mri-master
 matplotlib==1.4.3
 nose==1.3.6
 numpy==1.9.2

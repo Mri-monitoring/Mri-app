@@ -108,6 +108,7 @@ class MriServerDispatch(BaseDispatch):
                         'title': 'Training Progress',
                         'sample': 'iteration',
                         'fields': 'loss, accuracy',
+                        'scales': 'auto, 0 1',
                         'limit': 100000,
                         'size': 'big',
                         'interpolation': 'linear'

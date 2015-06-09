@@ -23,10 +23,12 @@ class CaffeProcess(BaseProcess):
     def __init__(self, directive_params, config, action_handler):
         super().__init__(directive_params, config, action_handler)
         self.curiter = 0
+        self.training = False
 
     def train(self):
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
+        self.training = True
         with cd(self.config['mri-client']['caffe_root']):
             caffe_path = self.config['mri-client']['caffe_bin']
             process_args = [caffe_path, 'train', '--solver', self.directive['local_solver']]
@@ -54,6 +56,7 @@ class CaffeProcess(BaseProcess):
                 # Wait for completion
                 proc.wait(timeout=10)
                 code = proc.returncode
+                self.training = False
         if code != 0:
             logging.error('Caffe returned with non-zero error code! (returned {0})'.format(code))
             raise OSError('Caffe external call failed')
@@ -63,4 +66,4 @@ class CaffeProcess(BaseProcess):
 
     @property
     def alive(self):
-        return True
+        return self.training
