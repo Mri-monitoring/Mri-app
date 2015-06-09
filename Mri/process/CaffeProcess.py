@@ -1,3 +1,10 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import super
+from future import standard_library
+standard_library.install_aliases()
 import subprocess
 import logging
 
@@ -29,15 +36,17 @@ class CaffeProcess(BaseProcess):
         # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
         # the center of the universe.
         self.training = True
-        with cd(self.config['mri-client']['caffe_root']):
-            caffe_path = self.config['mri-client']['caffe_bin']
+        with cd(self.config.get('mri-client', 'caffe_root')):
+            caffe_path = self.config.get('mri-client', 'caffe_bin')
             process_args = [caffe_path, 'train', '--solver', self.directive['local_solver']]
             # Resume training from snapshot?
             if 'resume' in self.directive:
                 process_args.append('--snapshot')
                 process_args.append(self.directive['resume'])
-            with subprocess.Popen(process_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
-                for line in iter(proc.stderr.readline, b''):
+            try:
+                proc = subprocess.Popen(process_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                for raw_line in iter(proc.stderr.readline, b''):
+                    line = raw_line.replace('\n', '')
                     logging.debug('[CAFFE OUTPUT ] {0}'.format(line))
                     parsed_event = parse_caffe_train_line(line)
                     if parsed_event:
@@ -54,9 +63,13 @@ class CaffeProcess(BaseProcess):
                                 pass
 
                 # Wait for completion
-                proc.wait(timeout=10)
+                proc.wait()
                 code = proc.returncode
                 self.training = False
+            except Exception as e:
+                raise e
+            finally:
+                pass
         if code != 0:
             logging.error('Caffe returned with non-zero error code! (returned {0})'.format(code))
             raise OSError('Caffe external call failed')

@@ -1,3 +1,10 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import bytes
+from future import standard_library
+standard_library.install_aliases()
 import unittest
 
 from Mri.utilities.line_parser import parse_caffe_train_line
