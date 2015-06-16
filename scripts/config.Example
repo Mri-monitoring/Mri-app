@@ -1,0 +1,5 @@
+[generate-tasks]
+mother_model = /path/to/mother/model
+mother_solver = /path/to/mother/solver
+task_folder = /folder/to/save/tasks
+hyperparams = /path/to/hyperparameter/file
