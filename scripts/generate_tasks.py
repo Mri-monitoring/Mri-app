@@ -1,4 +1,4 @@
-"""Use this script to generate tasks via random hyperparameter search. This is a first pass, but eventually
+"""Use this script to generate tasks via hyperparameter search. This is a first pass, but eventually
 something similar to this will be added to the Mri server. Also worth noting is that this may be spun off into
 a separate module if it's useful enough
 
@@ -9,6 +9,11 @@ field-name: 1,2,3,4
 field-name2: 0.23, 1.2, 5.4
 
 The field names can be in either the model or solver, just use unique names
+
+To run script:
+
+python generate_tasks random -n 5       # Generates 5 random tasks sampled from the hyperparameter distribution
+python generate_tasks grid              # Generate tasks for all possible hyperparameter values
 """
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -22,6 +27,7 @@ import uuid
 import random
 import json
 import argparse
+import itertools
 
 
 def create_dir(path):
@@ -57,7 +63,7 @@ class TaskCreator(object):
         with open(solver) as s:
             self.solver = str(s.read())
 
-    def sample(self):
+    def sample_random(self):
         """Sample a random permutation of hyperparameters
 
         Arguments
@@ -71,6 +77,24 @@ class TaskCreator(object):
                 params = [item.strip() for item in items.split(',')]
                 sample_dict[task] = random.choice(params)
         return sample_dict
+
+    def sample_one(self):
+        """Sample a single permutation of hyperparameters but don't repeat
+
+        Arguments
+        ----------
+        None
+        """
+        sample_dict = {}
+        with open(self.hyperparams) as f:
+            for line in f:
+                task, items = line.split(':')
+                sample_dict[task] = [item.strip() for item in items.split(',')]
+            keys = sample_dict.keys()
+            values = list(itertools.product(*sample_dict.values()))
+            all_dicts = [dict(zip(keys, v)) for v in values]
+            for d in all_dicts:
+                yield d
 
     def create_task(self, **kwargs):
         """Create a task from random search with the given kwargs
@@ -154,20 +178,32 @@ class TaskCreator(object):
 
 def main():
     parser = argparse.ArgumentParser(description='Create tasks for Mri')
+    parser.add_argument('search_type')
     parser.add_argument('-n')
     arg = parser.parse_args()
-    n_samps = int(arg.n)
 
     task = TaskCreator('config')
     task_list = os.path.join(task.folder, 'generated_tasks.txt')
-    with open(task_list, 'w') as f:
-        for n in range(n_samps):
-            samp = task.sample()
-            task_path = task.create_task(**samp)
-            full_path = os.path.join(task_path, 'task.json')
-            f.write(full_path)
-            f.write(os.linesep)
 
+    if arg.search_type == 'grid':
+        with open(task_list, 'w') as f:
+            for samp in task.sample_one():
+                task_path = task.create_task(**samp)
+                full_path = os.path.join(task_path, 'task.json')
+                f.write(full_path)
+                f.write(os.linesep)
+    elif arg.search_type == 'random':
+        n_samps = int(arg.n)
+        with open(task_list, 'w') as f:
+            for n in range(n_samps):
+                samp = task.sample_random()
+                task_path = task.create_task(**samp)
+                full_path = os.path.join(task_path, 'task.json')
+                f.write(full_path)
+                f.write(os.linesep)
+    else:
+        print('Invalid search type, specifiy either \'grid\' or \'random\'')
+        return
 
 if __name__ == "__main__":
     main()

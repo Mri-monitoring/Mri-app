@@ -113,7 +113,7 @@ class MriServerDispatch(BaseDispatch):
                     'eventName': 'train.'+self.task_params['id'],
                     'configuration': {
                         'title': 'Training Progress',
-                        'sample': 'iteration',
+                        'sample_random': 'iteration',
                         'fields': 'loss, accuracy',
                         'scales': 'auto, 0 1',
                         'limit': 100000,
