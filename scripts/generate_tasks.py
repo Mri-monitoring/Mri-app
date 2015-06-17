@@ -23,6 +23,7 @@ from future import standard_library
 standard_library.install_aliases()
 import configparser
 import os
+import re
 import uuid
 import random
 import json
@@ -62,6 +63,34 @@ class TaskCreator(object):
             self.model = str(m.read())
         with open(solver) as s:
             self.solver = str(s.read())
+
+        self._verify()
+
+    def _verify(self):
+        """Verify that this TaskCreator is valid, i.e. that our parameters match up, etc"""
+        def remove_chars(new_str):
+            to_remove = "{}%"
+            for char in to_remove:
+                new_str = new_str.replace(char, '')
+            return new_str
+
+        # Find all of the things we need to replace
+        tag_reg = re.compile(b'\%\{.+\}\%')
+        model_matches = [remove_chars(c) for c in re.findall(tag_reg, self.model)]
+        solver_matches = [remove_chars(c) for c in re.findall(tag_reg, self.solver)]
+        to_replace = set(model_matches).union(set(solver_matches))
+        # Find all of the things we are replacing with
+        params = []
+        with open(self.hyperparams) as f:
+            for line in f:
+                task, items = line.split(':')
+                params.append(task)
+        for_replace = set(params)
+        if to_replace != for_replace:
+            print('Error! There is a mismatch between template files and replacement parameters')
+            print('Tempate files must replace {0}'.format(to_replace))
+            print('but the hyperparameter file is trying to replace {0}'.format(for_replace))
+            raise Exception('Input configuration mismatch')
 
     def sample_random(self):
         """Sample a random permutation of hyperparameters
@@ -182,7 +211,7 @@ def main():
     parser.add_argument('-n')
     arg = parser.parse_args()
 
-    task = TaskCreator('config')
+    task = TaskCreator('config.txt')
     task_list = os.path.join(task.folder, 'generated_tasks.txt')
 
     if arg.search_type == 'grid':
