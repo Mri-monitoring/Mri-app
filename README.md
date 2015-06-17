@@ -12,15 +12,23 @@ This project relies on an open-source fork of [Reportr](http://www.reportr.io/) 
 To install, clone the git repository and enter the `Mri` directory. 
 
 ```
-$ git clone REPOLOCATIONHERE
-$ cd Mri
+$ git clone REPOLOCATIONHERE Mri-client
+$ cd Mri-client/Mri
 $ cp config.Template config.txt
+$ cd .. 
+```
+
+Optional: create a virtual environment to house the installation.
+
+```
+$ mkvirtualenv -p /usr/bin/python2.7 Mri
+$ workon Mri
+$ pip install -r requirements.txt
 ```
 
 Make appropriate edits to the config file, then install and run.
 
 ```
-$ cd ..
 $ python setup.py install
 $ python Mri/MriApp.py Mri/config.txt
 ```
@@ -48,3 +56,33 @@ Both Python 2.7 and Python 3 are supported. However, some features will only wor
 ## Configuration
 
 The Mri configuration file is a plain-text file that contains all the required configuration settings. See the configuration template for an example. Note that not all modules are required, i.e. if you only plan to use the matplotlib-dispatch option, you do not need any other dispatch configuration settings.
+
+## Hyperparameter Testing
+Included in the `script` directory is a python script that makes it easy to test many hyperparameters. 
+
+To use, first copy the configuration example to `config` and add your own values. The model and solver templates should simply replace any fields to be replaced by `%{field-name}%`. For example, you may have the following excerpt in your `solver.protobuf` file:
+
+```
+# The base learning rate, momentum and the weight decay of the network.
+base_lr: %{base_lr}%
+momentum: 0.9
+weight_decay: %{weight_decay}%
+# The learning rate policy
+lr_policy: "step"
+```
+
+Then, create the hyperparameter file:
+
+```
+base_lr: 1e-5, 1e-6, 1e-7
+weight_decay: 0.2, 0.1, 0.01
+```
+
+The field names can be in either the model or solver, just use unique names
+
+To run script:
+
+```
+python generate_tasks random -n 5       # Generates 5 random tasks sampled from the hyperparameter distribution
+python generate_tasks grid              # Generate tasks for all possible hyperparameter values
+```
