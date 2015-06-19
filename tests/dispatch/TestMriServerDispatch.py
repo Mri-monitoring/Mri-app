@@ -32,10 +32,20 @@ class TestMriServerDispatch(unittest.TestCase):
         data = json.dumps({'introducing' : 'kitton mittons'})
         result = server._send_request('/post', 'POST', data)
         self.assertEqual(result.status_code, 200)
-        # Check that we fail gracefully
+
+    def test_exceptions(self):
+        # Check that we gracefully handle failed servers
+        server = MriServerDispatch({}, 'http://thiswontworkatall', 'test', 'tester')
+        result = server._send_request('/', 'GET', None)
+        self.assertEqual(result, None)
+        # Check that we fail gracefully on invalid urls
         server = MriServerDispatch({}, 'http://744.255.255.1', 'test', 'tester')
         result = server._send_request('/get', 'GET', None)
         self.assertEqual(result, None)
+        # Check that we can detect 404s
+        server = MriServerDispatch({}, HTTP_BIN, 'test', 'tester')
+        result = server._send_request('/thisisntarealpath', 'GET', None)
+        self.assertEqual(result.status_code, 404)
 
     def test_new_report(self):
         server = MriServerDispatch({'name': 'test'}, HTTP_BIN, 'test', 'tester')

@@ -91,11 +91,11 @@ class MriServerDispatch(BaseDispatch):
             logging.info('Sent request, result {0}'.format(result.status_code))
             if result.status_code != 200:
                 logging.warning('Request not 200, server says {0}'.format(result.text))
-        except requests.ConnectionError as ex:
+        except requests.exceptions.ConnectionError as ex:
             logging.warning('Failed to send request because of a network problem')
             logging.warning('Message from exception: {0}'.format(ex))
             return None
-        except requests.TimeoutError as ex:
+        except requests.exceptions.ConnectTimeout as ex:
             logging.warning('Failed to send request because the server timed out')
             logging.warning('Message from exception: {0}'.format(ex))
             return None

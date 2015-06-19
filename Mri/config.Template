@@ -1,27 +1,27 @@
-# ---=== Dispatch Settings ===---
-# Dispatches events to be plotted locally in Matplotlib
+; ---=== Dispatch Settings ===---
+; Dispatches events to be plotted locally in Matplotlib
 [matplotlib-dispatch]
-save_img_folder = /home/user/saveimages                 # Location to save matplotlib outputs
+save_img_folder = /home/user/saveimages                 ; Location to save matplotlib outputs
 
-# Dispatches events to an mri-server
+; Dispatches events to an mri-server
 [mri-server-dispatch]
-url = http://server.herokuapp.com                       # Url of server
-username = user123                                      # Username on server
-password = pass123                                      # Password on server
+url = http://server.herokuapp.com                       ; Url of server
+username = user123                                      ; Username on server
+password = pass123                                      ; Password on server
 
-# ---=== Retrieve Settings ===---
-# Retrieve events from a local folder
+; ---=== Retrieve Settings ===---
+; Retrieve events from a local folder
 [local-retrieve]
-task_list = /z/nharada/Mri-testing/mri-testing.txt      # Local list of tasks, simply a list of folders containing tasks
+task_list = /z/nharada/Mri-testing/mri-testing.txt      ; Local list of tasks, simply a list of folders containing tasks
 
-# ---=== Client Settings ===---
+; ---=== Client Settings ===---
 [mri-client]
-log_location = ../mri.log                               # Log save location
-debug = True                                            # Enable for verbose logging and stdout
-caffe_root = /home/user/caffe                           # Root caffe directory. Caffe must be built!
-caffe_bin = ./build/tools/caffe                         # Path to caffe binary from root caffe folder
-solver_type = Caffe                                     # Currently only Caffe is possible
+log_location = ../mri.log                               ; Log save location
+debug = True                                            ; Enable for verbose logging and stdout
+caffe_root = /home/user/caffe                           ; Root caffe directory. Caffe must be built!
+caffe_bin = ./build/tools/caffe                         ; Path to caffe binary from root caffe folder
+solver_type = Caffe                                     ; Currently only Caffe is possible
 
-# Dispatch and Retrieve modules to use
-dispatch = mri-server-dispatch                          # Run with the server dispatch
-retrieve = local-retrieve                               # Run with the local retriever
+; Dispatch and Retrieve modules to use
+dispatch = mri-server-dispatch                          ; Run with the server dispatch
+retrieve = local-retrieve                               ; Run with the local retriever
