@@ -23,6 +23,10 @@ Optional: create a virtual environment to house the installation.
 ```
 $ mkvirtualenv -p /usr/bin/python2.7 Mri
 $ workon Mri
+```
+
+Install appropriate requirements to Python
+```
 $ pip install -r requirements.txt
 ```
 

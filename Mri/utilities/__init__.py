@@ -6,3 +6,4 @@ from future import standard_library
 standard_library.install_aliases()
 from .cd import cd
 from .line_parser import parse_caffe_train_line
+from .verify_config import verify_config

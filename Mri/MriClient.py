@@ -14,6 +14,7 @@ import threading
 from Mri.process import CaffeProcess, DummyProcess
 from Mri.dispatch import MatplotlibDispatch, MriServerDispatch
 from Mri.retrieve import LocalRetrieve
+from Mri.utilities import verify_config
 
 
 class MriClient(object):
@@ -27,12 +28,11 @@ class MriClient(object):
         """
         self._retrieve = None
         self._dispatch = None
+
+        # Verify and load configuration file
+        verify_config(config_file)
         self.config = configparser.ConfigParser()
-        try:
-            self.config.read(config_file)
-        except Exception as e:
-            print('Failed to parse config file')
-            raise e
+        self.config.read(config_file)
 
         self._init_logging()
         logging.info('Started MRI client at {0}'.format(time.ctime()))
@@ -41,17 +41,20 @@ class MriClient(object):
     def start(self):
         """Start the Caffe thread and run forever reading events"""
         self._retrieve = self._gen_retrieve()
-        for task in self._retrieve.retrieve_task():
-            logging.info('Running task {0} (id={1})'.format(task['name'], task['id']))
-            # Get dispatch based on type. Each task has it's own dispatch, but a dispatch
-            # covers all the directives under a certain task.
-            self._dispatch = self._gen_dispatch(task)
-            for directive in task['directives']:
-                logging.info('Directive found! Type: {0}'.format(directive['type']))
-                logging.debug('Full directive: {0}'.format(directive))
-                directive_params = directive['parameters']
-                if directive['type'] == 'train':
-                    self._run_train_directive(directive_params)
+        if self._retrieve:
+            for task in self._retrieve.retrieve_task():
+                logging.info('Running task {0} (id={1})'.format(task['name'], task['id']))
+                # Get dispatch based on type. Each task has it's own dispatch, but a dispatch
+                # covers all the directives under a certain task.
+                self._dispatch = self._gen_dispatch(task)
+                for directive in task['directives']:
+                    logging.info('Directive found! Type: {0}'.format(directive['type']))
+                    logging.debug('Full directive: {0}'.format(directive))
+                    directive_params = directive['parameters']
+                    if directive['type'] == 'train':
+                        self._run_train_directive(directive_params)
+        else:
+            logging.error('Warning, could not create retriever for this task! Skipping')
 
     def _run_train_directive(self, directive_params):
         """Run a directive using the JSON parameters"""

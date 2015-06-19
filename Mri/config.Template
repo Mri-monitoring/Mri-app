@@ -12,7 +12,7 @@ password = pass123                                      ; Password on server
 ; ---=== Retrieve Settings ===---
 ; Retrieve events from a local folder
 [local-retrieve]
-task_list = /z/nharada/Mri-testing/mri-testing.txt      ; Local list of tasks, simply a list of folders containing tasks
+task_list = /home/user/path/to/task/list.txt	        ; Local list of tasks, simply a list of folders containing tasks
 
 ; ---=== Client Settings ===---
 [mri-client]

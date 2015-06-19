@@ -15,7 +15,7 @@ class TestCD(unittest.TestCase):
         tempdir = tempfile.tempdir
         with cd(tempdir):
             cwd = os.getcwd()
-            self.assertEqual(cwd, '/tmp')
+            self.assertEqual(cwd, tempfile.tempdir)
 
 
 if __name__ == '__main__':
