@@ -57,6 +57,10 @@ def verify_config(filename):
         raise ValueError('Invalid retrieve found in config file')
 
     # Verify log
+    try:
+        open(config.get('mri-client', 'log_location'), 'a').close()
+    except:
+        raise ValueError('Log file specified in config file appears invalid')
     if not os.path.isfile(config.get('mri-client', 'log_location')):
         raise ValueError('Log file specified in config file appears invalid')
     # Verify Caffe
