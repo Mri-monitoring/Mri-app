@@ -8,6 +8,7 @@ import configparser
 import os
 import requests
 import subprocess
+import multiprocessing
 
 
 def verify_config(filename):
@@ -76,3 +77,9 @@ def verify_config(filename):
     solver = config.get('mri-client', 'solver_type')
     if solver != 'Caffe':
         raise ValueError('Solver type specified in config unrecognized')
+
+    # Warn the user if they only have one CPU
+    if multiprocessing.cpu_count() < 2:
+        raise ValueError('Mri-client doesn\'t support computers with less than one CPU core. '
+                         'If running on a virtual machine, please increase the core count.   '
+                         )
