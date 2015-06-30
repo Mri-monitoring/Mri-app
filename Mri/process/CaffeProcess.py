@@ -56,7 +56,7 @@ class CaffeProcess(BaseProcess):
                         if self.curiter is not None:
                             parsed_event['iteration'] = self.curiter
                             try:
-                                event_struct = TrainingEvent.create_from_dict(parsed_event)
+                                event_struct = TrainingEvent(parsed_event, 'iteration')
                                 self.action_handler.put(event_struct)
                             except ValueError:
                                 # We only want to send events that have a field filled out

@@ -10,21 +10,16 @@ from Mri.event import TrainingEvent
 
 class TestTrainingCaffeEvent(unittest.TestCase):
     def test_equality(self):
-        event_one = TrainingEvent(500, 0.167, None)
-        event_two = TrainingEvent(500.0, 0.1670, None)
+        event_one = TrainingEvent({'iteration': 500, 'loss': 0.167, 'accuracy': None}, 'iteration')
+        event_two = TrainingEvent({'iteration': 500, 'loss': 0.1670, 'accuracy': None}, 'iteration')
         self.assertEqual(event_one, event_two)
 
-        event_one = TrainingEvent(500, 0.167, 0.976)
-        event_two = TrainingEvent(400, 0.1670, 0.976)
+        event_one = TrainingEvent({'iteration': 500, 'loss': 0.167, 'accuracy': 0.976}, 'iteration')
+        event_two = TrainingEvent({'iteration': 400, 'loss': 0.1670, 'accuracy': 0.976}, 'iteration')
         self.assertNotEqual(event_one, event_two)
 
         with self.assertRaises(ValueError):
-            _ = TrainingEvent(None, 1.0, 1.0)
-
-    def test_create_from_dict(self):
-        event = TrainingEvent(500, 0.05, 0.10)
-        event_dict = {'iteration': 500, 'loss': 0.05, 'accuracy': 0.10}
-        self.assertEqual(event, TrainingEvent.create_from_dict(event_dict))
+            _ = TrainingEvent({'loss': 0.1670, 'accuracy': 0.976}, 'iteration')
 
 if __name__ == '__main__':
     unittest.main()

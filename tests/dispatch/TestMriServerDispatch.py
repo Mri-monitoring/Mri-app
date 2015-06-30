@@ -29,7 +29,7 @@ class TestMriServerDispatch(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         # Check post
         server = MriServerDispatch({}, HTTP_BIN, 'test', 'tester')
-        data = json.dumps({'introducing' : 'kitton mittons'})
+        data = json.dumps({'introducing': 'kitton mittons'})
         result = server._send_request('/post', 'POST', data)
         self.assertEqual(result.status_code, 200)
 
@@ -54,7 +54,7 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_format_train_request(self):
         server = MriServerDispatch({'name': 'test', 'id': 'cbdcig'}, HTTP_BIN, 'test', 'tester')
-        event = TrainingEvent(100, 0.5, 0.6)
+        event = TrainingEvent({'iteration': 100, 'loss': 0.5, 'accuracy': 0.6}, 'iteration')
         payload = server._format_train_request(event)
         self.assertTrue('train.cbdcig' in payload)
         self.assertTrue('"accuracy": 0.6' in payload)
@@ -78,7 +78,7 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_formatting(self):
         server = MriServerDispatch({'id': 'abcde'}, HTTP_BIN, 'test', 'tester')
-        event = TrainingEvent(100, 200, 300)
+        event = TrainingEvent({'iteration': 100, 'loss': 200, 'accuracy': 300}, 'iteration')
         data = server._format_train_request(event)
         correct = json.dumps(
             {"type": "train.abcde", "properties": {"iteration": 100, "loss": 200, "accuracy": 300}}

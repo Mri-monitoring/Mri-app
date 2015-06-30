@@ -136,11 +136,7 @@ class MriServerDispatch(BaseDispatch):
     def _format_train_request(self, train_event):
         """Generate the payload for the train request"""
         event_type = 'train.{0}'.format(self.task_params['id'].replace(' ', ''))
-        properties = {
-            'iteration': train_event.iteration,
-            'loss': train_event.loss,
-            'accuracy': train_event.accuracy
-        }
+        properties = train_event.attributes
         payload = {
             'type': event_type,
             'properties': properties

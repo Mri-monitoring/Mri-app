@@ -37,7 +37,8 @@ def verify_config(filename):
             raise RuntimeError(
                 'Failed to access the server specified in config.'
                 'Please verify the config file is correct and the server'
-                'is accessible with the given credentials.'
+                'is accessible with the given credentials.\n\n'
+                'Did you make sure to include \'http://\' in your address?'
             )
     elif dispatch == 'matplotlib-dispatch':
         save = config.get('matplotlib-dispatch', 'save_img_folder')
