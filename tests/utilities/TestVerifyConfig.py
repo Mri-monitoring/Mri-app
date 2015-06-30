@@ -29,7 +29,7 @@ task_list = /bin/ls
 
 ; ---=== Client Settings ===---
 [mri-client]
-log_location = /bin/ls
+log_location = /tmp/LogTmpTest.txt
 debug = True
 caffe_root = /bin
 caffe_bin = true
@@ -59,7 +59,7 @@ task_list = /path/to/local_235h98ghw.txt
 
 ; ---=== Client Settings ===---
 [mri-client]
-log_location = /bin/ls
+log_location = /tmp/LOGtmpTEST.txt
 debug = True
 caffe_root = /bin
 caffe_bin = true

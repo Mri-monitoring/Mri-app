@@ -61,8 +61,6 @@ def verify_config(filename):
         open(config.get('mri-client', 'log_location'), 'a').close()
     except:
         raise ValueError('Log file specified in config file appears invalid')
-    if not os.path.isfile(config.get('mri-client', 'log_location')):
-        raise ValueError('Log file specified in config file appears invalid')
     # Verify Caffe
     caffe_root = config.get('mri-client', 'caffe_root')
     if not os.path.isdir(caffe_root):
