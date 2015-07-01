@@ -26,12 +26,18 @@ class MatplotlibDispatch(BaseDispatch):
     """
     def __init__(self, task_params, img_folder):
         super().__init__()
-        self._losses = []
-        self._accs = []
+        # Data will be a dictionary of lists
+        self._data = {}
         self.task_params = task_params
         self._img_folder = img_folder
 
-    def setup_display(self):
+    def setup_display(self, time_axis, attributes):
+        super().setup_display(time_axis, attributes)
+        # Setup data
+        for item in self._attributes:
+            if item != self._time_axis:
+                self._data[item] = []
+        # Setup plotting
         plt.figure(figsize=(12, 10))
         plt.ion()
         plt.show()
@@ -40,25 +46,27 @@ class MatplotlibDispatch(BaseDispatch):
         """Plot a basic training and testing curve via Matplotlib"""
         super().train_event(event)
 
-        # Update list
-        if event.accuracy:
-            self._accs.append([event.iteration, event.accuracy])
-        if event.loss:
-            self._losses.append([event.iteration, event.loss])
+        time = event.attributes[event.time_axis]
+        for item in event.attributes:
+            if item != event.time_axis:
+                val = event.attributes[item]
+                self._data[item].append([time, val])
 
         # Convert to numpy arrays
-        loss = np.array(self._losses)
-        acc = np.array(self._accs)
+        np_data = []
+        for key in self._data:
+            if self._data[key]:
+                data = np.array(self._data[key])
+                np_data.append(data[:, 0])
+                np_data.append(data[:, 1])
 
-        # Display if we have accuracy and loss
-        if loss.size > 0 and acc.size > 0:
-            plt.clf()
-            plt.plot(loss[:, 0], loss[:, 1], acc[:, 0], acc[:, 1])
-            plt.ylim([0, 1])
-            plt.legend(['Loss', 'Accuracy'], loc='lower left')
-            plt.title(self.task_params['name'])
-            plt.grid(True, which='both')
-            plt.draw()
+        plt.clf()
+        plt.plot(*np_data)
+        plt.ylim([0, 1])
+        plt.legend(['Loss', 'Accuracy'], loc='lower left')
+        plt.title(self.task_params['name'])
+        plt.grid(True, which='both')
+        plt.draw()
 
     def train_finish(self):
         """Save our output figure to PNG format"""

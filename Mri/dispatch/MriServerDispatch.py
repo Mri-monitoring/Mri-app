@@ -10,6 +10,7 @@ import requests
 import json
 
 from .BaseDispatch import BaseDispatch
+from Mri.utilities import ServerConsts
 
 
 class MriServerDispatch(BaseDispatch):
@@ -39,12 +40,28 @@ class MriServerDispatch(BaseDispatch):
         self.auth = (username, password)
         self.report_id = None
 
-    def setup_display(self):
-        """Create a report for this dispatch, usually done at init"""
-        self.report_id = self._new_report()['id']
-        self._format_report()
+    def setup_display(self, time_axis, attributes):
+        """Create a report for this dispatch, usually done at init
 
-    def train_event(self, event, event_url='/api/events'):
+        Arguments
+        ----------
+        time_axis : string
+            Name of attribute representing time eg. iterations, epoch, etc
+
+        attributes : list
+            List of strings representing attributes to plot eg. loss, accuracy,
+            learning rate, etc. If time_axis attribute is present it will be ignored.
+        """
+        super().setup_display(time_axis, attributes)
+        report_json = self._new_report()
+        if 'id' in report_json:
+            self.report_id = report_json['id']
+        elif 'data' in report_json:
+            # This is for unit testing
+            self.report_id = ''
+        return self._format_report()
+
+    def train_event(self, event):
         """Dispatch training events to the Mri-server via REST interface
 
         Arguments
@@ -57,7 +74,7 @@ class MriServerDispatch(BaseDispatch):
         """
         super().train_event(event)
         payload = self._format_train_request(event)
-        result = self._send_request(event_url, 'POST', payload)
+        result = self._send_request(ServerConsts.API_URL.EVENT, 'POST', payload)
         return result
 
     def train_finish(self):
@@ -101,9 +118,18 @@ class MriServerDispatch(BaseDispatch):
             return None
         return result
 
-    def _format_report(self, report_url='/api/report/'):
+    def _format_report(self):
         """Called after creating a new report, formats a report to display Mri events"""
-        full_url = requests.compat.urljoin(report_url, self.report_id)
+        if not self.setup:
+            raise ValueError('Dispatch not setup yet, please call setup_report')
+        full_url = requests.compat.urljoin(ServerConsts.API_URL.REPORT_ID, self.report_id)
+        # Compile fields, etc
+        attr_no_time = self._attributes
+        attr_no_time.remove(self._time_axis)
+        fields = ','.join(attr_no_time)
+        scales = ','.join(['auto'] * len(attr_no_time))
+        sample = self._time_axis
+
         # Add training visualizations
         payload = json.dumps({
             'title': self.task_params['name'],
@@ -113,9 +139,9 @@ class MriServerDispatch(BaseDispatch):
                     'eventName': 'train.'+self.task_params['id'],
                     'configuration': {
                         'title': 'Training Progress',
-                        'sample': 'iteration',
-                        'fields': 'loss, accuracy',
-                        'scales': 'auto, 0 1',
+                        'sample': sample,
+                        'fields': fields,
+                        'scales': scales,
                         'limit': 100000,
                         'size': 'big',
                         'interpolation': 'linear'
@@ -126,10 +152,10 @@ class MriServerDispatch(BaseDispatch):
         result = self._send_request(full_url, 'PUT', payload)
         return result
 
-    def _new_report(self, reports_url='/api/reports'):
+    def _new_report(self):
         """Called during init, creates a new report on the server and returns its ID"""
         payload = json.dumps({'title': self.task_params['name']})
-        result = self._send_request(reports_url, 'POST', payload).text
+        result = self._send_request(ServerConsts.API_URL.REPORT, 'POST', payload).text
         result_obj = json.loads(result)
         return result_obj
 

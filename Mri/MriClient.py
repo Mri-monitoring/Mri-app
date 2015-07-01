@@ -98,12 +98,13 @@ class MriClient(object):
         if dispatch_type == 'matplotlib-dispatch':
             folder = os.path.join(self.config.get('matplotlib-dispatch', 'save_img_folder'))
             dispatch = MatplotlibDispatch(task, folder)
+            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
         elif dispatch_type == 'mri-server-dispatch':
             url = self.config.get('mri-server-dispatch', 'url')
             username = self.config.get('mri-server-dispatch', 'username')
             password = self.config.get('mri-server-dispatch', 'password')
             dispatch = MriServerDispatch(task, url, username, password)
-            dispatch.setup_display()
+            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
         else:
             logging.error('Invalid configuration file, please select a dispatch')
             raise Exception('Invalid configuration file, please select a dispatch')

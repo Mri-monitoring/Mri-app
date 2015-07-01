@@ -5,11 +5,11 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import unittest
-import requests
 import json
 
 from Mri.dispatch import MriServerDispatch
 from Mri.event import TrainingEvent
+from Mri.utilities import ServerConsts
 
 HTTP_BIN = 'http://httpbin.org'
 
@@ -49,7 +49,10 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_new_report(self):
         server = MriServerDispatch({'name': 'test'}, HTTP_BIN, 'test', 'tester')
-        result = server._new_report(reports_url='/post')
+        old = ServerConsts.API_URL.REPORT
+        ServerConsts.API_URL.REPORT = '/post'
+        result = server._new_report()
+        ServerConsts.API_URL.REPORT = old
         self.assertEqual(result['data'], '{"title": "test"}')
 
     def test_format_train_request(self):
@@ -61,8 +64,20 @@ class TestMriServerDispatch(unittest.TestCase):
 
     def test_format_report(self):
         server = MriServerDispatch({'name': 'test', 'id': 'cbdcig'}, HTTP_BIN, 'test', 'tester')
-        result = server._format_report('/put')
+        # Save const states
+        old_id = ServerConsts.API_URL.REPORT_ID
+        old = ServerConsts.API_URL.REPORT
+        ServerConsts.API_URL.REPORT_ID = '/put'
+        ServerConsts.API_URL.REPORT = '/post'
+
+        # Test
+        result = server.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
         obj = json.loads(result.text)['json']
+
+        # Restore states
+        ServerConsts.API_URL.REPORT = old
+        ServerConsts.API_URL.REPORT_ID = old_id
+
         self.assertEqual('big', obj['visualizations'][0]['configuration']['size'])
         self.assertEqual('train.cbdcig', obj['visualizations'][0]['eventName'])
 
