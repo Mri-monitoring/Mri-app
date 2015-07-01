@@ -43,6 +43,8 @@ def verify_config(filename):
             )
     elif dispatch == 'matplotlib-dispatch':
         save = config.get('matplotlib-dispatch', 'save_img_folder')
+        if not os.path.exists(save):
+            os.makedirs(save)
         if not os.path.isdir(save):
             raise ValueError('Image save folder specified in config file is not valid')
     else:
