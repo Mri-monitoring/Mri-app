@@ -89,7 +89,7 @@ class MriClient(object):
                 logging.debug('Processed item! Contents: {0}'.format(item))
                 self._dispatch.train_event(item)
             # Hand-off CPU
-            time.sleep(0.1)
+            time.sleep(0.05)
         self._dispatch.train_finish()
 
     def _gen_dispatch(self, task):
