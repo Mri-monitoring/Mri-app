@@ -3,7 +3,7 @@ Mri
 
 > Neural network monitoring
 
-Mri is a set of applications designed to allow you to easily monitor network training and automatically test architectures and hyperparameters. For now, Mri is designed to work with [Caffe](http://caffe.berkeleyvision.org/), but keep an eye out for other backends in the future.
+Mri is a set of applications designed to allow you to easily monitor network training and automatically test architectures and hyperparameters. For now, Mri is designed to work with [Caffe](http://caffe.berkeleyvision.org/) as well as Python applications such as [Theano](http://deeplearning.net/software/theano/). Keep an eye out for other backends in the future.
 
 This project relies on an open-source fork of [Reportr](http://www.reportr.io/) for browser based monitoring.
 
@@ -25,17 +25,21 @@ $ mkvirtualenv -p /usr/bin/python2.7 Mri
 $ workon Mri
 ```
 
-Install appropriate requirements to Python
+Install appropriate requirements to Python and install the Mri library
 ```
 $ pip install -r requirements.txt
-```
-
-Make appropriate edits to the config file, then install and run.
-
-```
 $ python setup.py install
+```
+
+## Caffe Wrapper
+If you are using the Caffe bindings, make appropriate edits to the config file, then install and run.
+
+```
 $ python Mri/MriApp.py Mri/config.txt
 ```
+
+## Python Library
+If you are using Mri-client as a Python library to interface with Mri-server, simply import the required modules into your project. See `examples/python_bindings` for example Python code.
 
 ## Architecture 
 
@@ -62,7 +66,7 @@ Both Python 2.7 and Python 3 are supported. However, some features will only wor
 The Mri configuration file is a plain-text file that contains all the required configuration settings. See the configuration template for an example. Note that not all modules are required, i.e. if you only plan to use the matplotlib-dispatch option, you do not need any other dispatch configuration settings.
 
 ## Hyperparameter Testing
-Included in the `script` directory is a python script that makes it easy to test many hyperparameters. 
+Included in the `script` directory is a python script that makes it easy to test many hyperparameters in Caffe.
 
 To use, first copy the configuration example to `config` and add your own values. The model and solver templates should simply replace any fields to be replaced by `%{field-name}%`. For example, you may have the following excerpt in your `solver.protobuf` file:
 
