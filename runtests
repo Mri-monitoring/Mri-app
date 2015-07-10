@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+source VirtualEnvLocations
+# Run Python tests
+echo "Running Python 2.7 Tests"
+source $VENV27
+nosetests
+deactivate
+
+# Run Python3 tests
+echo "Running Python 3.4 Tests"
+source $VENV34
+nosetests
+deactivate
