@@ -142,7 +142,10 @@ class TaskCreator(object):
         create_dir(self.folder)
         task_name = str(uuid.uuid4())
         # Create the new task
-        task_path = os.path.join(self.folder, task_name)
+        folder_repr = str(kwargs).replace(':', '-')
+        folder_repr = folder_repr.replace('u\'', '')
+        folder_repr = folder_repr.replace('\'', '')
+        task_path = os.path.join(self.folder, folder_repr)
         create_dir(task_path)
         snapshot_path = os.path.join(task_path, 'snapshots')
         create_dir(snapshot_path)
