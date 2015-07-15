@@ -9,11 +9,11 @@ This project relies on an open-source fork of [Reportr](http://www.reportr.io/) 
 
 ## Installing
 
-To install, clone the git repository and enter the `Mri` directory. 
+To install, clone the git repository and enter the `mriapp` directory. 
 
 ```
-$ git clone REPOLOCATIONHERE Mri-client
-$ cd Mri-client/Mri
+$ git clone https://github.com/Mri-monitoring/Mri-app.git 
+$ cd Mri-app/mriapp
 $ cp config.Template config.txt
 $ cd .. 
 ```
@@ -25,8 +25,15 @@ $ mkvirtualenv -p /usr/bin/python2.7 Mri
 $ workon Mri
 ```
 
-Install appropriate requirements to Python and install the Mri library
+Install appropriate requirements to Python. Install the Python client for Mri and install the Mri-app. For detailed instructions on installing the Mri Python client, visit the [Python repository](https://github.com/Mri-monitoring/Mri-python-client)
 ```
+$ git clone https://github.com/Mri-monitoring/Mri-python-client.git 
+$ cd Mri-python-client
+$ pip install -r requirements.txt
+$ python setup.py install
+$ cd ..
+
+$ cd Mri-app
 $ pip install -r requirements.txt
 $ python setup.py install
 ```
@@ -35,19 +42,22 @@ $ python setup.py install
 If you are using the Caffe bindings, make appropriate edits to the config file, then install and run.
 
 ```
-$ python Mri/MriApp.py Mri/config.txt
+$ python mriapp/MriApp.py mriapp/config.txt
 ```
 
 ## Python Library
-If you are using Mri-client as a Python library to interface with Mri-server, simply import the required modules into your project. See `examples/python_bindings` for example Python code.
+The Python library backing this application is available in a [separate repository](https://github.com/Mri-monitoring/Mri-python-client). 
 
 ## Architecture 
 
-In general Mri is designed for modularity. There are three central components to Mri:
+In general Mri is designed for modularity. There are two central components to the Mri-app:
 
 * Processes - A process is the actual training process. While it doesn't need to be a literal CPU process, in the case of Caffe it is.
-* Dispatch - Specifies how and where Mri will send training/testing information. Currently there is a barebones Matplotlib dispatch, and a more complete MriServer dispatch.
 * Retrieve - Because Mri can run multiple jobs in queue, the retriever specifies how to fetch the next job. Currently there is only the option to use a local file.
+
+There is also the dispatch component provided by the Python library:
+
+* Dispatch - Specifies how and where Mri will send training/testing information. Currently there is a barebones Matplotlib dispatch, and a more complete MriServer dispatch.
 
 ## Dependencies
 
