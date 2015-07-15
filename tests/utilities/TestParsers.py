@@ -7,7 +7,7 @@ from future import standard_library
 standard_library.install_aliases()
 import unittest
 
-from Mri.utilities.line_parser import parse_caffe_train_line
+from mriapp.utilities.line_parser import parse_caffe_train_line
 
 
 class TestParsers(unittest.TestCase):

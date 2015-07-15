@@ -8,9 +8,12 @@ standard_library.install_aliases()
 import subprocess
 import logging
 
-from Mri.utilities import parse_caffe_train_line, cd
-from Mri.event import TrainingEvent
+from mri.event import TrainingEvent
+
+from mriapp.utilities import parse_caffe_train_line
 from .BaseProcess import BaseProcess
+
+from mri.utilities import cd
 
 
 class CaffeProcess(BaseProcess):

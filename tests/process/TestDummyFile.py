@@ -6,7 +6,7 @@ from future import standard_library
 standard_library.install_aliases()
 import unittest
 
-from Mri.process import DummyProcess
+from mriapp.process import DummyProcess
 
 
 class TestDummyFile(unittest.TestCase):

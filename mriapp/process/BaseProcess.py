@@ -4,8 +4,10 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
-class DummyProcess(object):
-    """Dummy process for unit testing
+
+
+class BaseProcess(object):
+    """Base class for processes like solving
 
     Arguments
     ----------
@@ -22,7 +24,6 @@ class DummyProcess(object):
         self.directive = directive_params
         self.config = config
         self.action_handler = action_handler
-        self.iterations_remaining = 100
 
     def train(self):
         pass
@@ -32,8 +33,4 @@ class DummyProcess(object):
 
     @property
     def alive(self):
-        if self.iterations_remaining:
-            self.iterations_remaining -= 1
-            return True
-        else:
-            return False
+        return False

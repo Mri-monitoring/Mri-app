@@ -1,5 +1,5 @@
 """Use this script to generate tasks via hyperparameter search. This is a first pass, but eventually
-something similar to this will be added to the Mri server. Also worth noting is that this may be spun off into
+something similar to this will be added to the mri.server. Also worth noting is that this may be spun off into
 a separate module if it's useful enough
 
 To use, first copy the configuration example to `config` and add your own values. The mother model and solver
@@ -209,7 +209,7 @@ class TaskCreator(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Create tasks for Mri')
+    parser = argparse.ArgumentParser(description='Create tasks for mri.)
     parser.add_argument('search_type')
     parser.add_argument('-n')
     arg = parser.parse_args()

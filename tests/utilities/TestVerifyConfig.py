@@ -8,7 +8,7 @@ standard_library.install_aliases()
 import unittest
 import tempfile
 
-from Mri.utilities import verify_config
+from mriapp.utilities import verify_config
 
 good_config = '''
 ; ---=== Dispatch Settings ===---

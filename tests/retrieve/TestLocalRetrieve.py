@@ -9,7 +9,7 @@ import os
 import unittest
 import tempfile
 
-from Mri.retrieve import LocalRetrieve
+from mriapp.retrieve import LocalRetrieve
 
 
 class TestLocalRetrieve(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestLocalRetrieve(unittest.TestCase):
             "solver": "/home/user/folder/002/solver.prototxt"
             }
         }],
-        "name": "Mri Test",
+        "name": "mri.Test",
         "id": "554d0b8888fce10300bf0bdf"
     }"""
 

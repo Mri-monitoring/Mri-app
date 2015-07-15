@@ -11,13 +11,14 @@ import time
 import queue
 import threading
 
-from Mri.process import CaffeProcess, DummyProcess
-from Mri.dispatch import MatplotlibDispatch, MriServerDispatch
-from Mri.retrieve import LocalRetrieve
-from Mri.utilities import verify_config
+from mri.dispatch import MatplotlibDispatch, MriServerDispatch
+
+from mriapp.retrieve import LocalRetrieve
+from mriapp.process import CaffeProcess, DummyProcess
+from mriapp.utilities import verify_config
 
 
-class MriClient(object):
+class MriCaffe(object):
     def __init__(self, config_file):
         """Initialize application
 

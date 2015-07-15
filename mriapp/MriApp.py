@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from Mri.MriCaffe import MriClient
+from mriapp.MriCaffe import MriCaffe
 
 import argparse
 
@@ -17,7 +17,7 @@ def main():
     parser.add_argument('config_file')
     arg = parser.parse_args()
 
-    client = MriClient(arg.config_file)
+    client = MriCaffe(arg.config_file)
     client.start()
 
 if __name__ == "__main__":

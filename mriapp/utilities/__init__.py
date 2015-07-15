@@ -4,5 +4,5 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
-from .BaseEvent import BaseEvent
-from .TrainingEvent import TrainingEvent
+from .line_parser import parse_caffe_train_line
+from .verify_config import verify_config

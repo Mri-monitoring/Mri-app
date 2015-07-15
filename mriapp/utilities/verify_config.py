@@ -82,6 +82,6 @@ def verify_config(filename):
 
     # Warn the user if they only have one CPU
     if multiprocessing.cpu_count() < 2:
-        raise ValueError('Mri-client doesn\'t support computers with less than one CPU core. '
+        raise ValueError('mri.client doesn\'t support computers with less than one CPU core. '
                          'If running on a virtual machine, please increase the core count.   '
                          )
