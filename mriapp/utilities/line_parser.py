@@ -25,7 +25,6 @@ def parse_caffe_train_line(line):
     training_event : dictionary
         A (possibly incomplete) dict with the parsed information
     """
-    line = line.decode('utf8')
     line = line.replace('\n', '')
     training_event = {}
 

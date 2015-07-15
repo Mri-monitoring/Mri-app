@@ -49,7 +49,8 @@ class CaffeProcess(BaseProcess):
             try:
                 proc = subprocess.Popen(process_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 for raw_line in iter(proc.stderr.readline, b''):
-                    line = raw_line.replace('\n', '')
+                    decoded_line = raw_line.decode('utf-8')
+                    line = decoded_line.replace('\n', '')
                     logging.debug('[CAFFE OUTPUT ] {0}'.format(line))
                     parsed_event = parse_caffe_train_line(line)
                     if parsed_event:
