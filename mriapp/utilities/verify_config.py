@@ -22,7 +22,7 @@ def verify_config(filename):
     """
     # Open the config file
     if not os.path.isfile(filename):
-        raise ValueError("Config file does not exist")
+        raise ValueError("Config file {} does not exist".format(filename))
     config = configparser.ConfigParser()
     config.read(filename)
 
@@ -48,7 +48,7 @@ def verify_config(filename):
         if not os.path.exists(save):
             os.makedirs(save)
         if not os.path.isdir(save):
-            raise ValueError('Image save folder specified in config file is not valid')
+            raise ValueError('Image save folder {} specified in config file is not valid'.format(save))
     else:
         raise ValueError('Invalid dispatch found in config file')
 
@@ -57,7 +57,7 @@ def verify_config(filename):
         # Check that the task list is a real file
         task_list = config.get('local-retrieve', 'task_list')
         if not os.path.isfile(task_list):
-            raise ValueError('Task list specified in config file not found')
+            raise ValueError('Task list {} specified in config file not found'.format(task_list))
     else:
         raise ValueError('Invalid retrieve found in config file')
 

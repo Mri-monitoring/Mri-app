@@ -42,7 +42,8 @@ $ python setup.py install
 If you are using the Caffe bindings, make appropriate edits to the config file, then install and run.
 
 ```
-$ python mriapp/MriApp.py mriapp/config.txt
+cd mriapp
+$ python MriApp.py
 ```
 
 ## Python Library
