@@ -10,6 +10,9 @@ import os
 import time
 import queue
 import threading
+import tempfile
+import uuid
+import json
 
 from mri.dispatch import MatplotlibDispatch, MriServerDispatch
 
@@ -19,7 +22,7 @@ from mriapp.utilities import verify_config
 
 
 class MriCaffe(object):
-    def __init__(self, config_file):
+    def __init__(self, config_file, solver_override):
         """Initialize application
 
         Arguments
@@ -35,9 +38,19 @@ class MriCaffe(object):
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
 
+        # Start logging
         self._init_logging()
         logging.info('Started MRI client at {0}'.format(time.ctime()))
         logging.info('Read config file at {0}'.format(config_file))
+
+        # Check the override solver prototext
+        if solver_override:
+            logging.info('Override prototext detected, using file {} instead of task list'.format(solver_override))
+            if not os.path.isfile(solver_override):
+                raise ValueError('Cannot find solver file for override')
+            self.solver_override = solver_override
+        else:
+            self.solver_override = None
 
     def start(self):
         """Start the Caffe thread and run forever reading events"""
@@ -112,12 +125,39 @@ class MriCaffe(object):
 
         return dispatch
 
+    def _gen_false_local_retrieve(self):
+        """Create a local retrieve for a single solver in a temp directory"""
+        # Create the temp dir
+        temp_dir = tempfile.mkdtemp()
+        # Create the temp task
+        name = os.path.split(self.solver_override)[1]
+        id = str(uuid.uuid1())
+        logging.debug('Creating a task for {} named {}, id {}'.format(self.solver_override, name, id))
+
+        temp_task = os.path.join(temp_dir, 'task.json')
+        with open(temp_task, 'w') as f:
+            train_directive = [{'type': 'train', 'parameters': {'solver': self.solver_override}}]
+            task_file = {'directives': train_directive, 'name': name, 'id': id}
+            json.dump(task_file, f)
+        # Create the temp list containing one task
+        temp_task_list = tempfile.NamedTemporaryFile()
+        print(temp_task, file=temp_task_list)
+        logging.debug('Created task list with single task at {}'.format(temp_task_list.name))
+        return LocalRetrieve(temp_task_list.name)
+
     def _gen_retrieve(self):
         """Create retrieve from config file"""
         # Retriever gets new Caffe tasks
-        retrieve_type = self.config.get('mri-client', 'retrieve').lower()
-        if retrieve_type == 'local-retrieve':
-            return LocalRetrieve(self.config.get('local-retrieve', 'task_list'))
+        # If we don't want to override via solver get the specified retriever
+        if not self.solver_override:
+            logging.debug("Generating retriever specified in config file")
+            retrieve_type = self.config.get('mri-client', 'retrieve').lower()
+            if retrieve_type == 'local-retrieve':
+                return LocalRetrieve(self.config.get('local-retrieve', 'task_list'))
+        # Otherwise we'll override by creating a false task list and false task (local)
+        else:
+            logging.debug("Overriding retriever via command line")
+            return self._gen_false_local_retrieve()
 
     def _init_logging(self):
         """Setup logger to file and console"""

@@ -37,7 +37,7 @@ class LocalRetrieve(object):
         set of possible tasks.
         """
         for next_line in self._f.read().splitlines():
-            logging.debug(next_line)
+            logging.debug('Retrieving task \'{}\''.format(next_line))
             if next_line:
                 try:
                     with open(next_line) as js:

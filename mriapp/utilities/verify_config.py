@@ -21,6 +21,8 @@ def verify_config(filename):
         Config file to test
     """
     # Open the config file
+    if not os.path.isfile(filename):
+        raise ValueError("Config file does not exist")
     config = configparser.ConfigParser()
     config.read(filename)
 
@@ -71,7 +73,8 @@ def verify_config(filename):
     # Verify Caffe path
     caffe = config.get('mri-client', 'caffe_bin')
     caffe_path = os.path.abspath(os.path.join(caffe_root, caffe))
-    ret_val = subprocess.call(caffe_path)
+    with open(os.devnull, 'w') as f:
+        ret_val = subprocess.call(caffe_path, stdout=f)
     if ret_val is not 0:
         raise ValueError('An error occurred when trying to access Caffe, please check your config file')
 

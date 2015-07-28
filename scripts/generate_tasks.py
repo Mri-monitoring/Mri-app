@@ -170,7 +170,7 @@ class TaskCreator(object):
         with open(solver_location, 'w') as f:
             f.write(new_solver)
         # Create task file
-        train_directive = [{'type': 'train', 'parameters': {'model': model_location, 'solver': solver_location}}]
+        train_directive = [{'type': 'train', 'parameters': {'solver': solver_location}}]
         task_file = {'directives': train_directive, 'name': str(kwargs), 'id': task_name}
         with open(os.path.join(task_path, 'task.json'), 'w') as f:
             json.dump(task_file, f, indent=4)
@@ -209,7 +209,7 @@ class TaskCreator(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Create tasks for mri.)
+    parser = argparse.ArgumentParser(description='Create tasks for mri')
     parser.add_argument('search_type')
     parser.add_argument('-n')
     arg = parser.parse_args()
