@@ -1,4 +1,4 @@
 future==0.14.3
 nose==1.3.6
 requests==2.7.0
--e git+git@github.com:Mri-monitoring/Mri-python-client.git@98523751bae31c9b2eb1469391459d048e47f1b3#egg=mri-master
+-e https://github.com/Mri-monitoring/Mri-python-client.git#egg=mri-master
