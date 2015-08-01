@@ -1,6 +1,7 @@
 Mri
 ========
 [![Build Status](https://travis-ci.org/Mri-monitoring/Mri-app.svg?branch=master)](https://travis-ci.org/Mri-monitoring/Mri-app)
+[![Documentation Status](https://readthedocs.org/projects/mri/badge/?version=latest)](https://readthedocs.org/projects/mri/?badge=latest)
 
 > Neural network monitoring
 
