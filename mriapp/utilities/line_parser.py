@@ -16,12 +16,12 @@ def parse_caffe_train_line(line):
     """Parse a line from Caffe's training output
 
     Arguments
-    ----------
+    ---------
     line : string
         Line to parse from training
 
     Returns
-    ----------
+    -------
     training_event : dictionary
         A (possibly incomplete) dict with the parsed information
     """

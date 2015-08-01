@@ -16,7 +16,7 @@ def verify_config(filename):
     unfortunate config errors where some events have already occurred, such as accessing the server
 
     Arguments
-    ----------
+    ---------
     filename : string
         Config file to test
     """

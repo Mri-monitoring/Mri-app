@@ -7,10 +7,10 @@ standard_library.install_aliases()
 
 
 class BaseProcess(object):
-    """Base class for processes like solving
+    """Base class for processes like Caffe solvers
 
     Arguments
-    ----------
+    ---------
     directive_params : dict
         Dictionary from the JSON directive parameters
 
@@ -29,8 +29,16 @@ class BaseProcess(object):
         pass
 
     def test(self):
+        """Currently unused"""
         pass
 
     @property
     def alive(self):
+        """Returns true if the process is currently running
+
+        Returns
+        -------
+        running : boolean
+            True if process is still running
+        """
         return False

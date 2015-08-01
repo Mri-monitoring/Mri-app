@@ -57,7 +57,7 @@ class MriCaffe(object):
         self._retrieve = self._gen_retrieve()
         if self._retrieve:
             for task in self._retrieve.retrieve_task():
-                logging.info('Running task {0} (id={1})'.format(task['name'], task['id']))
+                logging.info('Running task {0} (id={1})'.format(task['title'], task['id']))
                 # Get dispatch based on type. Each task has it's own dispatch, but a dispatch
                 # covers all the directives under a certain task.
                 self._dispatch = self._gen_dispatch(task)
@@ -137,7 +137,7 @@ class MriCaffe(object):
         temp_task = os.path.join(temp_dir, 'task.json')
         with open(temp_task, 'w') as f:
             train_directive = [{'type': 'train', 'parameters': {'solver': self.solver_override}}]
-            task_file = {'directives': train_directive, 'name': name, 'id': id}
+            task_file = {'directives': train_directive, 'title': name, 'id': id}
             json.dump(task_file, f)
         # Create the temp list containing one task
         temp_task_list = tempfile.NamedTemporaryFile()

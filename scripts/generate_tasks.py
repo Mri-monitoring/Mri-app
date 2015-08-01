@@ -75,7 +75,7 @@ class TaskCreator(object):
             return new_str
 
         # Find all of the things we need to replace
-        tag_reg = re.compile(b'\%\{.+\}\%')
+        tag_reg = re.compile(r'\%\{.+\}\%')
         model_matches = [remove_chars(c) for c in re.findall(tag_reg, self.model)]
         solver_matches = [remove_chars(c) for c in re.findall(tag_reg, self.solver)]
         to_replace = set(model_matches).union(set(solver_matches))
@@ -171,7 +171,7 @@ class TaskCreator(object):
             f.write(new_solver)
         # Create task file
         train_directive = [{'type': 'train', 'parameters': {'solver': solver_location}}]
-        task_file = {'directives': train_directive, 'name': str(kwargs), 'id': task_name}
+        task_file = {'directives': train_directive, 'title': str(kwargs), 'id': task_name}
         with open(os.path.join(task_path, 'task.json'), 'w') as f:
             json.dump(task_file, f, indent=4)
         return task_path

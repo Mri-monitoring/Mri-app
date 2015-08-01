@@ -10,7 +10,7 @@ class DummyProcess(object):
     """Dummy process for unit testing
 
     Arguments
-    ----------
+    ---------
     directive_params : dict
         Dictionary from the JSON directive parameters
 
@@ -27,13 +27,16 @@ class DummyProcess(object):
         self.iterations_remaining = 100
 
     def train(self):
+        """Unused"""
         pass
 
     def test(self):
+        """Unused"""
         pass
 
     @property
     def alive(self):
+        """Live for a certain number of iterations"""
         if self.iterations_remaining:
             self.iterations_remaining -= 1
             return True

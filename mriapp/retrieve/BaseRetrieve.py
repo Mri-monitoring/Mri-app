@@ -7,12 +7,7 @@ standard_library.install_aliases()
 
 
 class BaseRetrieve(object):
-    """Base class to retrieve new solver jobs
-
-    Arguments
-    ----------
-    None
-    """
+    """Base class to retrieve new solver jobs"""
     def __init__(self):
         pass
 

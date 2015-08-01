@@ -20,7 +20,7 @@ class CaffeProcess(BaseProcess):
     """Class for running Caffe
 
     Arguments
-    ----------
+    ---------
     directive_params : dict
         Dictionary from the JSON directive parameters
 
@@ -36,8 +36,9 @@ class CaffeProcess(BaseProcess):
         self.training = False
 
     def train(self):
-        # Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
-        # the center of the universe.
+        """Start solver, we'll context switch to the caffe_root directory because Caffe has issues not being
+        the center of the universe.
+        """
         self.training = True
         with cd(self.config.get('mri-client', 'caffe_root')):
             caffe_path = self.config.get('mri-client', 'caffe_bin')
@@ -79,8 +80,16 @@ class CaffeProcess(BaseProcess):
             raise OSError('Caffe external call failed')
 
     def test(self):
+        """Currently unused"""
         pass
 
     @property
     def alive(self):
+        """Returns true if the process is currently running
+
+        Returns
+        -------
+        running : boolean
+            True if process is still running
+        """
         return self.training

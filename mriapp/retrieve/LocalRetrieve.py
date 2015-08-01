@@ -14,7 +14,7 @@ class LocalRetrieve(object):
     """Retrieve new solver jobs from local filesystem
 
     Arguments
-    ----------
+    ---------
     task_record : string
         File on the local system containing a list of folders with tasks
     """
@@ -35,6 +35,11 @@ class LocalRetrieve(object):
         the training task for Caffe, including the locations of model/solvers.
         This function is a generator and will allow iteration through the entire
         set of possible tasks.
+
+        Yields
+        ------
+        task : dict
+            A task located on the local drive
         """
         for next_line in self._f.read().splitlines():
             logging.debug('Retrieving task \'{}\''.format(next_line))
@@ -49,5 +54,11 @@ class LocalRetrieve(object):
 
     def retrieve_file(self, location):
         """Basically the identity function - we don't need to get any network data
-        for local files, so we'll just pass back the file handle"""
+        for local files, so we'll just pass back the file handle
+
+        Returns
+        -------
+        location : string
+            Local location of a file.
+        """
         return location
