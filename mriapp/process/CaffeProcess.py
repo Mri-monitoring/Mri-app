@@ -7,6 +7,7 @@ from future import standard_library
 standard_library.install_aliases()
 import subprocess
 import logging
+import time
 
 from mri.event import TrainingEvent
 
@@ -69,8 +70,11 @@ class CaffeProcess(BaseProcess):
 
                 # Wait for completion
                 proc.wait()
+                logging.debug('Process finished...waiting extra for process thread to complete')
+                time.sleep(2)
                 code = proc.returncode
                 self.training = False
+                logging.debug('Caffe thread is now marked as finished')
             except Exception as e:
                 raise e
             finally:

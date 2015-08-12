@@ -62,3 +62,7 @@ target/
 
 # Stupid gedit stuff
 *~
+
+# Personal config files
+matplotlib-mri-config
+server-mri-config
