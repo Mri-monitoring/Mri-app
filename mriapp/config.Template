@@ -2,6 +2,7 @@
 ; Dispatches events to be plotted locally in Matplotlib
 [matplotlib-dispatch]
 save_img_folder = /home/user/saveimages                 ; Location to save matplotlib outputs
+show_windows = False                                    ; Optional, set to True to show plots during training
 
 ; Dispatches events to an mri-server
 [mri-server-dispatch]
