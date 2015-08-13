@@ -70,6 +70,16 @@ class MriCaffe(object):
         else:
             logging.error('Warning, could not create retriever for this task! Skipping')
 
+    def _get_config(self, *args):
+        """Get a config variable or return None instead of throwing an exception"""
+        config = self.config
+        value = None
+        try:
+            value = config.get(*args)
+        except configparser.NoOptionError:
+            pass
+        return value
+
     def _run_train_directive(self, directive_params):
         """Run a directive using the JSON parameters"""
         # Non-blocking thread safe queue for incoming events
@@ -83,7 +93,7 @@ class MriCaffe(object):
         directive_params['local_solver'] = self._retrieve.retrieve_file(directive_params['solver'])
         logging.debug('Using local solver {0}'.format(directive_params['local_solver']))
 
-        solver_type = self.config.get('mri-client', 'solver_type').lower()
+        solver_type = self._get_config('mri-client', 'solver_type').lower()
         if solver_type == 'caffe':
             process = CaffeProcess(directive_params, self.config, event_queue)
             caffe_thread = threading.Thread(target=process.train)
@@ -108,15 +118,16 @@ class MriCaffe(object):
 
     def _gen_dispatch(self, task):
         # Get dispatch based on type
-        dispatch_type = self.config.get('mri-client', 'dispatch').lower()
+        dispatch_type = self._get_config('mri-client', 'dispatch').lower()
         if dispatch_type == 'matplotlib-dispatch':
-            folder = os.path.join(self.config.get('matplotlib-dispatch', 'save_img_folder'))
+            folder = os.path.join(self._get_config('matplotlib-dispatch', 'save_img_folder'))
             dispatch = MatplotlibDispatch(task, folder)
-            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
+            show_windows = True if self._get_config('matplotlib-dispatch', 'show_windows') else False
+            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'], show_windows=show_windows)
         elif dispatch_type == 'mri-server-dispatch':
-            url = self.config.get('mri-server-dispatch', 'url')
-            username = self.config.get('mri-server-dispatch', 'username')
-            password = self.config.get('mri-server-dispatch', 'password')
+            url = self._get_config('mri-server-dispatch', 'url')
+            username = self._get_config('mri-server-dispatch', 'username')
+            password = self._get_config('mri-server-dispatch', 'password')
             dispatch = MriServerDispatch(task, url, username, password)
             dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
         else:
@@ -151,9 +162,9 @@ class MriCaffe(object):
         # If we don't want to override via solver get the specified retriever
         if not self.solver_override:
             logging.debug("Generating retriever specified in config file")
-            retrieve_type = self.config.get('mri-client', 'retrieve').lower()
+            retrieve_type = self._get_config('mri-client', 'retrieve').lower()
             if retrieve_type == 'local-retrieve':
-                return LocalRetrieve(self.config.get('local-retrieve', 'task_list'))
+                return LocalRetrieve(self._get_config('local-retrieve', 'task_list'))
         # Otherwise we'll override by creating a false task list and false task (local)
         else:
             logging.debug("Overriding retriever via command line")
@@ -161,12 +172,12 @@ class MriCaffe(object):
 
     def _init_logging(self):
         """Setup logger to file and console"""
-        log_location = os.path.abspath(self.config.get('mri-client', 'log_location'))
+        log_location = os.path.abspath(self._get_config('mri-client', 'log_location'))
         log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
         root_logger = logging.getLogger()
 
         # Send everything to console if debug mode
-        if self.config.get('mri-client', 'debug').lower() == 'true':
+        if self._get_config('mri-client', 'debug').lower() == 'true':
             root_logger.level = logging.DEBUG
             file_handler = logging.FileHandler(log_location)
             file_handler.setFormatter(log_formatter)
