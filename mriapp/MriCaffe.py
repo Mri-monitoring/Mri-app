@@ -122,7 +122,12 @@ class MriCaffe(object):
         if dispatch_type == 'matplotlib-dispatch':
             folder = os.path.join(self._get_config('matplotlib-dispatch', 'save_img_folder'))
             dispatch = MatplotlibDispatch(task, folder)
-            show_windows = True if self._get_config('matplotlib-dispatch', 'show_windows') else False
+            windows = self._get_config('matplotlib-dispatch', 'show_windows')
+            if windows:
+                show_windows = windows.lower() == 'true'
+            else:
+                show_windows = False
+
             dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'], show_windows=show_windows)
         elif dispatch_type == 'mri-server-dispatch':
             url = self._get_config('mri-server-dispatch', 'url')
