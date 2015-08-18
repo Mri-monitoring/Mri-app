@@ -212,10 +212,13 @@ def main():
     parser = argparse.ArgumentParser(description='Create tasks for mri')
     parser.add_argument('search_type')
     parser.add_argument('-n')
+    parser.add_argument('--config', default='config.txt')
     arg = parser.parse_args()
 
-    task = TaskCreator('config.txt')
+    task = TaskCreator(arg.config)
     task_list = os.path.join(task.folder, 'generated_tasks.txt')
+    task_dir = os.path.dirname(task_list)
+    create_dir(task_dir)
 
     if arg.search_type == 'grid':
         with open(task_list, 'w') as f:
@@ -234,7 +237,7 @@ def main():
                 f.write(full_path)
                 f.write(os.linesep)
     else:
-        print('Invalid search type, specifiy either \'grid\' or \'random\'')
+        print('Invalid search type, specify either \'grid\' or \'random\'')
         return
 
 if __name__ == "__main__":
