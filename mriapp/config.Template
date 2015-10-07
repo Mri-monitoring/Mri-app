@@ -24,5 +24,5 @@ caffe_bin = ./build/tools/caffe                         ; Path to caffe binary f
 solver_type = Caffe                                     ; Currently only Caffe is possible
 
 ; Dispatch and Retrieve modules to use
-dispatch = mri-server-dispatch                          ; Run with the server dispatch
+dispatch = mri-server-dispatch                          ; Choose which dispatcher, eg 'mri-server-dispatch' or 'matplotlib-dispatch'
 retrieve = local-retrieve                               ; Run with the local retriever
