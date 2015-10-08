@@ -187,6 +187,8 @@ class MriCaffe(object):
             file_handler = logging.FileHandler(log_location)
             file_handler.setFormatter(log_formatter)
             root_logger.addHandler(file_handler)
+        else:
+            root_logger.level = logging.INFO
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(log_formatter)
