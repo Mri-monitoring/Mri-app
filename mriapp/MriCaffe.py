@@ -182,8 +182,12 @@ class MriCaffe(object):
         root_logger = logging.getLogger()
 
         # Send everything to console if debug mode
-        if self._get_config('mri-client', 'debug').lower() == 'true':
-            root_logger.level = logging.DEBUG
+        log_mode = self._get_config('mri-client', 'log_level').lower()
+        if log_mode == 'debug' or log_mode == 'info':
+            if log_mode == 'debug':
+                root_logger.level = logging.DEBUG
+            else:
+                root_logger.level = logging.INFO
             file_handler = logging.FileHandler(log_location)
             file_handler.setFormatter(log_formatter)
             root_logger.addHandler(file_handler)
