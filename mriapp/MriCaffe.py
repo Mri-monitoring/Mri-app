@@ -128,13 +128,13 @@ class MriCaffe(object):
             else:
                 show_windows = False
 
-            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'], show_windows=show_windows)
+            dispatch.setup_display('iteration', ['iteration', 'loss', 'test_loss', 'accuracy'], show_windows=show_windows)
         elif dispatch_type == 'mri-server-dispatch':
             url = self._get_config('mri-server-dispatch', 'url')
             username = self._get_config('mri-server-dispatch', 'username')
             password = self._get_config('mri-server-dispatch', 'password')
             dispatch = MriServerDispatch(task, url, username, password)
-            dispatch.setup_display('iteration', ['iteration', 'loss', 'accuracy'])
+            dispatch.setup_display('iteration', ['iteration', 'loss', 'test_loss', 'accuracy'])
         else:
             logging.error('Invalid configuration file, please select a dispatch')
             raise Exception('Invalid configuration file, please select a dispatch')
