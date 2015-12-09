@@ -18,7 +18,7 @@ task_list = /home/user/path/to/task/list.txt	        ; Local list of tasks, simp
 ; ---=== Client Settings ===---
 [mri-client]
 log_location = ../mri.log                               ; Log save location
-debug = True                                            ; Enable for verbose logging and stdout
+log_level = DEBUG                                       ; "DEBUG", "INFO" or "NONE". Level of verbose logging and stdout (decreasing order)
 caffe_root = /home/user/caffe                           ; Root caffe directory. Caffe must be built!
 caffe_bin = ./build/tools/caffe                         ; Path to caffe binary from root caffe folder
 solver_type = Caffe                                     ; Currently only Caffe is possible
