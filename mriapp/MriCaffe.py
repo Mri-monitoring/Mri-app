@@ -182,7 +182,12 @@ class MriCaffe(object):
         root_logger = logging.getLogger()
 
         # Send everything to console if debug mode
-        log_mode = self._get_config('mri-client', 'log_level').lower()
+        log_mode = 'debug'
+        try:
+            log_mode = self._get_config('mri-client', 'log_level').lower()
+        except AttributeError:
+            print("ERROR: Debug logging level is not valid, using default verbose logging")
+
         if log_mode == 'debug' or log_mode == 'info':
             if log_mode == 'debug':
                 root_logger.level = logging.DEBUG
